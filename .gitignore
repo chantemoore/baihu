@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# test files
+test
+thougts.md
 
 
 # Editor directories and files

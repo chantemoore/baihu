@@ -1,0 +1,62 @@
+{
+  "duck": {
+    "zh_name": "闪避",
+    "useTime": {
+      "beforeBattle": false,
+      "inBattle": true,
+      "beforeJudge": false,
+      "afterJudge": false,
+      "whenInjured": false
+    }
+  },
+  "grenade": {
+    "zh_name": "手榴弹",
+    "useTime": {
+      "beforeBattle": false,
+      "inBattle": true,
+      "beforeJudge": false,
+      "afterJudge": false,
+      "whenInjured": false
+    }
+  },
+  "mine": {
+    "zh_name": "地雷",
+    "useTime": {
+      "beforeBattle": true,
+      "inBattle": false,
+      "beforeJudge": false,
+      "afterJudge": false,
+      "whenInjured": false
+    }
+  },
+  "goldBell": {
+    "zh_name": "金钟罩",
+    "useTime": {
+      "beforeBattle": false,
+      "inBattle": true,
+      "beforeJudge": true,
+      "afterJudge": false,
+      "whenInjured": false
+    }
+  },
+  "medKit": {
+    "zh_name": "血包",
+    "useTime": {
+      "beforeBattle": false,
+      "inBattle": false,
+      "beforeJudge": false,
+      "afterJudge": false,
+      "whenInjured": true
+    }
+  },
+  "nucBomb": {
+    "zh_name": "原子弹",
+    "useTime": {
+      "beforeBattle": true,
+      "inBattle": true,
+      "beforeJudge": true,
+      "afterJudge": false,
+      "whenInjured": false
+    }
+  }
+}

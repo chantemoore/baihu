@@ -1,0 +1,24 @@
+.skill {
+  display: flex;
+  flex-direction: column;
+  padding: .5em;
+
+  &:has(.disabled) {
+    //border: crimson 1px solid;
+}
+  .icon {
+    width: 45px;
+    height: 45px;
+    object-fit: contain;
+    //overflow: visible;
+    border-radius: 50%;
+    &:hover {
+      cursor: pointer;
+    }
+    &.disabled {
+      cursor: not-allowed;
+      opacity: .8;
+      border: crimson 1px solid;
+    }
+  }
+}

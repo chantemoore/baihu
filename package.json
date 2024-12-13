@@ -10,8 +10,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "axios": "^1.7.9",
+    "immer": "^10.1.1",
+    "jotai": "^2.10.3",
+    "jotai-immer": "^0.4.1",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "react-router": "^7.0.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.15.0",

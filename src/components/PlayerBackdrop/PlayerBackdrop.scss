@@ -1,0 +1,66 @@
+.player-backdrop {
+  &.chosen {
+    border: 1px solid darkseagreen;
+  }
+
+  border: 1px solid salmon;
+  display: flex;
+  flex-direction: column;
+  gap: .5em;
+  padding: 1em .5em;
+
+  h1, h2 {
+    margin: 0;
+  }
+
+  h2 {
+    font-size: 6em;
+    //border: 1px solid #535bf2;
+  }
+
+  h2.advantage {
+    font-size: 8em;
+  }
+
+  .player-name {
+    //border: 1px solid #535bf2;
+
+    button {
+      padding: 2em;
+      border-radius: 50%;
+      width: 4em; // 设置宽度
+      height: 4em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    display: flex;
+    gap: .5em;
+    //border: 1px solid #1a1a1a;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.skills-board {
+  margin-top: 1em;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  gap: .5em;
+
+
+
+  & > div {
+    //border: 1px solid gainsboro;
+    background: teal;
+    flex-basis: 50%;
+    padding: .5em;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+  }
+}
