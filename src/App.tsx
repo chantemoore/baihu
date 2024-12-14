@@ -2,8 +2,8 @@ import {Routes, Route} from 'react-router';
 import { enableMapSet } from 'immer'
 
 import './App.css'
-import BattlePage from './pages/BattlePage/BattlePage.tsx'
-import HomePage from './pages/HomePage/HomePage.tsx'
+import BattlePage from './pages/teacher/BattlePage/BattlePage.tsx'
+import HomePage from './pages/teacher/HomePage/HomePage.tsx'
 
 
 enableMapSet()
@@ -13,6 +13,9 @@ function App() {
         <Routes>
             <Route path={"/"} element={<HomePage/>}/>
             <Route path={"/battle"} element={<BattlePage/>}/>
+            <Route path={"/student"}>
+
+            </Route>
         </Routes>
     </>
   )

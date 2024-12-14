@@ -40,7 +40,7 @@ export default function calculateResult(setClassStudents: (fn: (draft: WritableD
                                         currentQuestion: Question | null) {
     const { currentSpeakerID, combatData } = battleData
 
-    let baseScoreDelta : number = 0
+    let baseScoreDelta : number
     // let extraScoreDelta: number = 0
     const [mainSpeakerStuID, rivalrySpeakerID] = currentSpeakerID
     const [isMainSpeakerWin, isRivalrySpeakerWin] = [combatData.result[mainSpeakerStuID], combatData.result[rivalrySpeakerID]]

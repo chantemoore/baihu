@@ -104,12 +104,10 @@ export default function Skill({userID, name, quantity}: SkillProps) {
             futureQuantity = skillQuantity + offset
             if (futureQuantity >=0) {
                 setStudentsData(draft => {
-                    draft = draft.map((stu) => {
-                        if (stu.id === userID) {
-                            stu.assets[name] = futureQuantity
-                        }
-                        return stu
-                    })
+                    const studentIndex = draft.findIndex(stu => stu.id === userID)
+                    if (studentIndex !== -1) {
+                        draft[studentIndex].assets[name] = futureQuantity
+                    }
                 })
             }
             return futureQuantity >= 0

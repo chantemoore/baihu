@@ -1,13 +1,10 @@
-import { WritableDraft } from 'immer'
+import {WritableDraft} from 'immer'
 import {useImmerAtom} from 'jotai-immer';
 
-import { battleAtom, classStudentsAtom } from '../../atoms/battleAtoms.ts';
-import { adjustScore } from '../Battle/calculateResult.ts'
-import { Student } from '../../types/types.ts'
+import {battleAtom, classStudentsAtom} from '../../atoms/battleAtoms.ts';
+import {adjustScore} from '../Battle/calculateResult.ts'
+import {Student} from '../../types/types.ts'
 
-interface skillScoreRulesType {
-    [key: string]: (...args: any[]) => void;
-}
 
 export function useSkillRules() {
     const [, setBattleData] = useImmerAtom(battleAtom);
@@ -49,12 +46,10 @@ export function useSkillRules() {
         })
     }
 
-    const skillScoreRules: skillScoreRulesType = {
+    return {
         medKit: medKitRule,
         duck: duckRule,
         grenade: grenadeRule,
         nucBomb: nucBombRule
     }
-
-    return skillScoreRules
 }

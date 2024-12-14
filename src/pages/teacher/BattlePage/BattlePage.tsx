@@ -4,12 +4,12 @@ import axios from 'axios';
 import { useAtom, useAtomValue } from 'jotai'
 import { useImmerAtom } from 'jotai-immer'
 
-import { Battle } from "../../components/Battle/Battle.tsx";
+import { Battle } from "../../../components/Battle/Battle.tsx";
 
-import { classCourseSelectedAtom, classDataAtom, availableCoursesAtom, isGameOverAtom } from '../../atoms/battleAtoms.ts'
+import { classCourseSelectedAtom, classDataAtom, availableCoursesAtom, isGameOverAtom } from '../../../atoms/battleAtoms.ts'
 
 import './BattlePage.scss'
-import mockClass from '../../../test/classes.json'
+import mockClass from '../../../../test/classes.json'
 
 const isBackendReady = false
 
