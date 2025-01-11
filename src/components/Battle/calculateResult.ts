@@ -50,6 +50,7 @@ export default function calculateResult(setClassStudents: (fn: (draft: WritableD
             draft.combatData.buff[speakerID].delete(name)
         })
     }
+    console.log('info', currentQuestion?.type, battleData.noBuzz)
 
     // quick response and nobody buzzed
     if (currentQuestion?.type === 'QuickResponse' && battleData.noBuzz) {
@@ -57,6 +58,7 @@ export default function calculateResult(setClassStudents: (fn: (draft: WritableD
         if (isMainSpeakerWin) {
             baseScoreDelta = baseScoreDeltaTable.QuickResponse.noBuzz.win
         } else {
+            // lose, subduct 30 points
             baseScoreDelta = baseScoreDeltaTable.QuickResponse.noBuzz.lose
         }
     } else if (currentQuestion?.type === 'QuickResponse' && !battleData.noBuzz) {
@@ -64,6 +66,7 @@ export default function calculateResult(setClassStudents: (fn: (draft: WritableD
         if (isMainSpeakerWin) {
             baseScoreDelta = baseScoreDeltaTable.QuickResponse.buzz.win
         } else {
+            // lose, subduct 20 points
             baseScoreDelta = baseScoreDeltaTable.QuickResponse.buzz.lose
         }
     }

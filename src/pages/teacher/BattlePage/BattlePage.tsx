@@ -4,9 +4,9 @@ import axios from 'axios';
 import { useAtom, useAtomValue } from 'jotai'
 import { useImmerAtom } from 'jotai-immer'
 
-import { Battle } from "../../../components/Battle/Battle.tsx";
+import { Battle } from "@/components/Battle/Battle.tsx";
 
-import { classCourseSelectedAtom, classDataAtom, availableCoursesAtom, isGameOverAtom } from '../../../atoms/battleAtoms.ts'
+import { classCourseSelectedAtom, classDataAtom, availableCoursesAtom, battleAtom, isGameOverAtom } from '@/atoms/battleAtoms.ts'
 
 import './BattlePage.scss'
 import mockClass from '../../../../test/classes.json'
@@ -108,7 +108,12 @@ function SelectClassCoursePage() {
 
 function EndPage() {
     const navigate = useNavigate()
+    const [, setBattleData] = useImmerAtom(battleAtom)
     const handleSubmitDataBtnClick = () => {
+        // reset question index, since over button's functioning is based on question-index change
+        setBattleData(draft => {
+            draft.questionIndex = -1
+        })
         navigate('/')
     }
 
@@ -116,9 +121,9 @@ function EndPage() {
         <>
             <div className={"end-page"}>
                 <h1>Game Over!</h1>
-            </div>
-            <div className={"choose-area"}>
-                <button onClick={handleSubmitDataBtnClick}>Submit Data</button>
+                <div className={"choose-area"}>
+                    <button onClick={handleSubmitDataBtnClick}>Submit Data</button>
+                </div>
             </div>
         </>
     )

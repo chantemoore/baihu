@@ -2,7 +2,9 @@ import { Student, Question } from './types'
 
 export interface BattleAtomType {
     questionIndex: number,
-    noBuzz: boolean
+    noBuzz: boolean,
+    readyTimeOver: boolean,
+    answerTimeOver: boolean,
     totalQuestions: Question[],
     currentPlayers: Student[]
     currentSpeakerID: number[],
@@ -20,6 +22,14 @@ export interface BattleAtomType {
         }
     }
 }
+
+
+export interface userAtom {
+    id?: number
+    username?: string
+}
+
+
 
 
 

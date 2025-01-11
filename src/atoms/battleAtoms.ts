@@ -57,6 +57,8 @@ export const findStudentAtom = atom((get) => (stuID: number) => {
 export const battleAtom = atom<BattleAtomType>({
     questionIndex: -1,
     noBuzz: false,
+    readyTimeOver: false,
+    answerTimeOver: false,
     totalQuestions: [],
     currentPlayers: [],
     // main speaker is at thr head
@@ -71,7 +73,6 @@ export const battleAtom = atom<BattleAtomType>({
         buff: {}
     }
 })
-
 
 export const currentQuestionAtom = atom((get) => {
     const battleData = get(battleAtom)

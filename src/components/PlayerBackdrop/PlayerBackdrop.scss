@@ -1,9 +1,13 @@
 .player-backdrop {
   &.chosen {
-    border: 1px solid darkseagreen;
+    border: 5px solid darkseagreen;
   }
 
-  border: 1px solid salmon;
+  &.can-choose:hover {
+    cursor: pointer;
+  }
+
+  border: 1px solid black;
   display: flex;
   flex-direction: column;
   gap: .5em;
@@ -49,7 +53,6 @@
   display: flex;
   flex-direction: row;
   gap: .5em;
-
 
 
   & > div {
