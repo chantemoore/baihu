@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useAtom, useAtomValue } from 'jotai'
 import { useImmerAtom } from 'jotai-immer'
 
-import { battleAtom, classStudentsAtom, findStudentAtom, isJudgeFinishedAtom } from '../../atoms/battleAtoms'
+import { battleAtom, classStudentsAtom, findStudentAtom, isJudgeFinishedAtom } from '@/atoms/battleAtoms.ts'
 import { useSkillRules } from './skillRules.ts'
 import skillDict from '../../data/skills.json';
 
