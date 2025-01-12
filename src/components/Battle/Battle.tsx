@@ -13,8 +13,10 @@ import './Battle.scss'
 import mockQuestions from '../../../test/questions.json'
 
 const isBackendReady = false
+const isDev = false
+
 const readyTime = 1
-const quickResponseReadyTime = 2
+const quickResponseReadyTime = 5
 
 
 export function Battle() {
@@ -23,7 +25,8 @@ export function Battle() {
     const [classStudents, setClassStudents] = useAtom(classStudentsAtom)
     const findStudentByID = useAtomValue(findStudentAtom)
     const currentQuestion = useAtomValue(currentQuestionAtom)
-    const [counter, setCounter] = useState(currentQuestion?.type === 'QuickResponse' ? quickResponseReadyTime : readyTime)
+    const counterTime = quickResponseReadyTime
+    const [counter, setCounter] = useState(counterTime)
 
 
     const get1RandomNum = (range: number) => {
@@ -43,12 +46,34 @@ export function Battle() {
                     draft.totalQuestions = res.data as Question[]
                 })
             })
-        } else {
+        } else if(isDev) {
             console.log('Backend is not ready, use mock data instead')
             setBattleData(draft => {
                 draft.totalQuestions = mockQuestions as Question[]
             })
-        }}, [setBattleData]);
+        } else {
+            console.log('use import data')
+            try {
+                const storedData = localStorage.getItem('questions')
+                if (storedData) {
+                    const parsedData = JSON.parse(storedData)
+                    setBattleData(draft => {
+                        draft.totalQuestions = parsedData
+                    })
+                } else {
+                    console.warn('No class data found in localStorage')
+                    setBattleData(draft => {
+                        draft.totalQuestions = []
+                    })
+                }
+            } catch (err) {
+                console.error('Error reading from localStorage:', err)
+                setBattleData(draft => {
+                    draft.totalQuestions = []
+                })
+            }
+        }
+        }, [setBattleData]);
 
     // set counter behavior
     useEffect(() => {
@@ -76,11 +101,12 @@ export function Battle() {
             if (counter === 0 && !battleData.isBattleOver) {
                 if (currentQuestion) {
                     if (currentQuestion.type === 'QuickResponse') {
-                        setBattleData(draft => {
-                            draft.noBuzz = true
-                        })
+                        if (!battleData.currentSpeakerID.length) {
+                            drawSpeaker()
+                        }
+                    } else {
+                        drawSpeaker()
                     }
-                    drawSpeaker()
                 }
             }
 
@@ -128,7 +154,7 @@ export function Battle() {
 
     function resetBattleStatus() {
         // reset counter
-        setCounter(readyTime)
+        setCounter(counterTime)
         // reset battle status
         setBattleData(pre => ({
             ...pre,
@@ -142,6 +168,7 @@ export function Battle() {
             answerTimeOver: false,
             isBattleStart: false,
             isBattleOver: false,
+            isBaseScoreAltered: false,
             isDisplayAnswer: false
         }))}
 
@@ -202,6 +229,7 @@ export function Battle() {
         })
     }
     console.log('battleData', battleData)
+    console.log('altered?', counterTime)
 
     return (
         <div className="battle">

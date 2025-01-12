@@ -9,10 +9,12 @@ export const classDataAtom = atom<Class[]>([])
 
 export const classCourseSelectedAtom  = atom<{
     selectComplete: boolean
+    importComplete: boolean
     classID: Class['id'] | null
     courseID: Course['id'] | null
 }>({
     selectComplete: false,
+    importComplete: false,
     classID: null,
     courseID: null
 })
@@ -93,5 +95,5 @@ export const isJudgeFinishedAtom = atom((get) => {
 export const isGameOverAtom = atom((get) => {
     const battleData = get(battleAtom)
     const {totalQuestions: {length}, questionIndex} = battleData
-    return length < questionIndex
+    return length <= questionIndex
 })

@@ -118,7 +118,7 @@ export default function Skill({userID, name, quantity}: SkillProps) {
         if (!isDisabled) {
             let changeResult: boolean
             if (Object.values(battleData.combatData.buff).some(buffset => buffset.has('duck')) && name === 'duck') {
-                changeResult = changeSkillQuantity(-3)
+                changeResult = changeSkillQuantity(-2)
             } else {
                 changeResult = changeSkillQuantity(-1)
             }
@@ -128,23 +128,23 @@ export default function Skill({userID, name, quantity}: SkillProps) {
                     draft.combatData.buff[userID].add(name)
                 })
                 setIsDisabled(true)
-            }
-            // add skill using history in buff pool
 
-            // apply skill effects
-            if (name === 'duck') {
-                skillRules.duck()
-            }
-            if (name === 'medKit') {
-                skillRules.medKit(userID, setStudentsData)
-            }
-            if (name === 'grenade') {
-                skillRules.grenade()
-            }
-            if (name === 'nucBomb') {
-                skillRules.nucBomb()
-            }
+                // add skill using history in buff pool
 
+                // apply skill effects
+                if (name === 'duck') {
+                    skillRules.duck()
+                }
+                if (name === 'medKit') {
+                    skillRules.medKit(userID, setStudentsData)
+                }
+                if (name === 'grenade') {
+                    skillRules.grenade()
+                }
+                if (name === 'nucBomb') {
+                    skillRules.nucBomb()
+                }
+            }
         } // NO code after this closed curly bracket!
     }
 

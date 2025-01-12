@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react'
 import { useImmerAtom } from 'jotai-immer';
 import { useAtomValue } from 'jotai'
 
-import { Student } from '../../types/types.ts';
+import { Student } from '@/types/types.ts';
 import Skill from '../Skill/Skill.tsx';
 import './PlayerBackdrop.scss';
-import { battleAtom, isJudgeFinishedAtom, currentQuestionAtom } from '../../atoms/battleAtoms'
+import { battleAtom, isJudgeFinishedAtom, currentQuestionAtom } from '@/atoms/battleAtoms.ts'
 
 interface PlayerBackdropProps {
     player: Student
@@ -32,13 +32,12 @@ export default function PlayerBackdrop({player, isAhead}: PlayerBackdropProps) {
         } else {
             setIsChosen(false)
         }
-        if (currentQuestion?.type === 'QuickResponse' && battleData.isBattleStart && !battleData.readyTimeOver) {
+        if (currentQuestion?.type === 'QuickResponse' && battleData.isBattleStart && !battleData.readyTimeOver && !isChosen) {
             setIsChosable(true)
         } else {
             setIsChosable(false)
         }
-
-    }, [battleData.currentSpeakerID, battleData.isBattleStart, battleData.readyTimeOver, currentQuestion?.type, id]);
+    }, [battleData.currentSpeakerID, battleData.isBattleStart, battleData.readyTimeOver, currentQuestion?.type, id, isChosen]);
 
 
     function handleQuickResponseClick() {

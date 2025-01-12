@@ -1,3 +1,13 @@
+export interface Skill {
+    name: string
+    zh_name: string
+    useTime: {
+        [key: string]: boolean
+    },
+    isDisposable: boolean
+    effectIntro: string
+    icon: string
+}
 
 export interface Assets {
     [key: string]: number
