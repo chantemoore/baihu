@@ -263,9 +263,9 @@ export function Battle() {
                 <h2 className={'answer'}>
                     {battleData.questionIndex > -1 && battleData.isDisplayAnswer && currentQuestion?.answer}
                 </h2>
-                <div className={"counter"}>
-                    <p>{counter}</p>
-                </div>
+            </div>
+            <div className={"counter"}>
+                <p className={counter < 3 ? 'warning' : ''}>{counter}</p>
             </div>
             <div className={"player"}>
                 <div className="player1">
@@ -286,24 +286,35 @@ export function Battle() {
                     <button onClick={() => handleFlexAddBtnClick('HealthPack')}>One HealthPack Quzz</button>
                     <button onClick={() => handleFlexAddBtnClick('QuickResponse')}>One QuickResponse Quzz</button>
                 </div>
-                <button
-                    disabled={battleData.questionIndex <= 0}
-                    onClick={handleLastBtnClick}
-                    className={"prev"}>上一题
-                </button>
-                <button
-                    onClick={handleCenterBtnClick}
-                    className={"start"}>{!battleData.isBattleStart
-                    ? '开始'
-                    : (!battleData.isBattleOver ? '停止计时' : (battleData.isDisplayAnswer ? '隐藏答案' : '显示答案'))}</button>
-                <button
-                    onClick={handleNextBtnClick}
-                    className={"next"}>下一题
-                </button>
-                <button
-                    onClick={() => {setBattleData((draft) => {draft.questionIndex = draft.totalQuestions.length + 1})}}>
-                    结束
-                </button>
+                <div className={'change-question'}>
+                    <button>
+                        首页
+                    </button>
+                    <button
+                        disabled={battleData.questionIndex <= 0}
+                        onClick={handleLastBtnClick}
+                        className={"prev"}>
+                        上一题
+                    </button>
+                    <button
+                        onClick={handleCenterBtnClick}
+                        className={"start"}>{!battleData.isBattleStart
+                        ? '开始'
+                        : (!battleData.isBattleOver ? '停止计时' : (battleData.isDisplayAnswer ? '隐藏答案' : '显示答案'))}</button>
+                    <button
+                        onClick={handleNextBtnClick}
+                        className={"next"}>
+                        下一题
+                    </button>
+                    <button
+                        onClick={() => {
+                            setBattleData((draft) => {
+                                draft.questionIndex = draft.totalQuestions.length + 1
+                            })
+                        }}>
+                        结束
+                    </button>
+                </div>
             </div>
         </div>
     );

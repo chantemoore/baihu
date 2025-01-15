@@ -26,6 +26,26 @@
     filter: blur(0);
   }
 
+  .counter {
+    user-select: none;
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    top: 1em;
+    left: 3em;
+    border: 1px dotted black;
+    height: 4em;
+    width: 6em;
+
+    p {
+      font-size: 1.8em;
+      &.warning {
+        color: red;
+      }
+    }
+  }
+
   .player {
     display: grid;
     grid-template-columns: 1fr auto 1fr;
@@ -33,5 +53,18 @@
 
   .separator {
     padding: 0 1px; /* 分隔线周围的空间 */
+  }
+
+  .control-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    margin-bottom: 1em;
+    div {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      gap: 1em;
+    }
   }
 }
