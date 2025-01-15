@@ -20,8 +20,8 @@ import mockQuestions from '../../../test/questions.json'
 const isBackendReady = false
 const isDev = false
 
-const readyTime = 1
-const quickResponseReadyTime = 1
+const generalReadyTime = 1
+const quickResponseReadyTime = 2
 
 
 export function Battle() {
@@ -30,8 +30,11 @@ export function Battle() {
     const [classStudents, setClassStudents] = useAtom(classStudentsAtom)
     const findStudentByID = useAtomValue(findStudentAtom)
     const currentQuestion = useAtomValue(currentQuestionAtom)
-    const counterTime = quickResponseReadyTime
+    const counterTime = currentQuestion?.type === 'QuickResponse' ? quickResponseReadyTime : generalReadyTime
     const [counter, setCounter] = useState(counterTime)
+    useEffect(() => {
+        setCounter(counterTime)
+    }, [counterTime]);
 
 
     const get1RandomNum = (range: number) => {
