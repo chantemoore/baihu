@@ -1,11 +1,14 @@
 import { atom } from 'jotai'
+import { atomWithStorage } from 'jotai/utils'
+
 import { produce } from 'immer'
 import type { WritableDraft } from 'immer'
 
 import { BattleAtomType } from '../types/atoms.ts'
 import { Class, Course, Student } from '../types/types.ts'
 
-export const classDataAtom = atom<Class[]>([])
+// export const classDataAtom = atom<Class[]>([])
+export const classDataAtom = atomWithStorage<Class[]>('classDataAsync', [])
 
 export const classCourseSelectedAtom  = atom<{
     selectComplete: boolean
@@ -27,7 +30,9 @@ export const availableCoursesAtom = atom((get) => {
     return selectedClass?.courses || []
 })
 
-export const classStudentsAtom = atom((get) => {
+
+export const classStudentsAtom = atom(
+    (get) => {
     const classData = get(classDataAtom)
     const classSelected = get(classCourseSelectedAtom)
     const studentsInClass = classData.find((classObj) => classObj.id === classSelected.classID)
@@ -43,6 +48,8 @@ export const classStudentsAtom = atom((get) => {
             return classObj
         })
         set(classDataAtom, newClassData)
+        // localStorage.setItem('classDataAsync', JSON.stringify(newClassData))
+
 })
 
 export const findStudentAtom = atom((get) => (stuID: number) => {

@@ -80,7 +80,7 @@ function ImportClassCoursePage() {
                 const formattedQuestionData: Question[] = questionJsonData.map((item: any) => ({
                     id: item.ID?.toString(),
                     stem: item.stem || '',
-                    answer: item.Answer || '',
+                    answer: item.answer || '',
                     type: item.type,
                     difficulty: item.difficulty
                 }));

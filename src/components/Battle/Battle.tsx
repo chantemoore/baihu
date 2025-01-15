@@ -5,7 +5,12 @@ import axios from 'axios';
 
 import { Question, Student } from "@/types/types.ts";
 import PlayerBackdrop from "../../components/PlayerBackdrop/PlayerBackdrop.tsx";
-import { classStudentsAtom, battleAtom, findStudentAtom, currentQuestionAtom, isJudgeFinishedAtom } from '@/atoms/battleAtoms.ts'
+import {
+    classStudentsAtom,
+    battleAtom,
+    findStudentAtom,
+    currentQuestionAtom,
+    isJudgeFinishedAtom } from '@/atoms/battleAtoms.ts'
 import calculateResult from './calculateResult.ts'
 
 import './Battle.scss'
@@ -16,7 +21,7 @@ const isBackendReady = false
 const isDev = false
 
 const readyTime = 1
-const quickResponseReadyTime = 5
+const quickResponseReadyTime = 1
 
 
 export function Battle() {
@@ -80,7 +85,7 @@ export function Battle() {
         function drawSpeaker() {
             // const { currentPlayers } = battleData
             setBattleData(draft => {
-                draft.currentSpeakerID.push(battleData.currentPlayers[get1RandomNum(2)].id)
+                draft.currentSpeakerID = [battleData.currentPlayers[get1RandomNum(2)].id]
             })
         }
 
@@ -105,6 +110,7 @@ export function Battle() {
                             drawSpeaker()
                         }
                     } else {
+                        console.log('I run...')
                         drawSpeaker()
                     }
                 }
@@ -112,7 +118,8 @@ export function Battle() {
 
             return () => clearInterval(timer)
         }
-    }, [battleData.currentPlayers, currentQuestion?.type, battleData.isBattleOver, battleData.isBattleStart, battleData.questionIndex, battleData.totalQuestions, counter, isJudgeFinished, setBattleData, currentQuestion]);
+        // battleData.currentPlayers, currentQuestion?.type, battleData.isBattleOver, battleData.isBattleStart, battleData.questionIndex, battleData.totalQuestions, counter, isJudgeFinished, setBattleData, currentQuestion
+    }, [battleData.currentPlayers, currentQuestion, battleData.isBattleOver, battleData.isBattleStart, battleData.questionIndex, battleData.totalQuestions, counter, isJudgeFinished, setBattleData, battleData.currentSpeakerID.length]);
 
     useEffect(() => {
         if (isJudgeFinished) {
@@ -204,18 +211,33 @@ export function Battle() {
 
     function handleNextBtnClick() {
         const {questionIndex} = battleData
+        // add players in history, ensuring everyone can join the battle
         if (questionIndex >= 0) {
             setBattleData(draft => {
                 draft.pastParticipantsID[battleData.questionIndex] = draft.currentPlayers.map(player => player.id)
             })
         }
         resetBattleStatus()
-        // match players
 
+        // match players
         matchPlayer()
         // with safeguard in isGameOver atom, don't worry index overflow
         setBattleData(draft => {
             draft.questionIndex = draft.questionIndex + 1
+        })
+    }
+
+    function handleFlexAddBtnClick(quizType: 'QuickResponse' | 'General' | 'HealthPack') {
+        setBattleData(draft => {
+            draft.totalQuestions.splice(draft.questionIndex + 1, 0, {
+                "id": Math.floor(Math.random() * 1000),
+                "stem": "请听题",
+                "answer": "请听讲",
+                "type": quizType,
+                "difficulty": "easy"
+            })
+            draft.questionIndex += 1
+            resetBattleStatus()
         })
     }
 
@@ -224,12 +246,12 @@ export function Battle() {
     if (Object.keys(battleData.pastParticipantsID).includes(battleData.questionIndex.toString())) {
         [player1, player2] = battleData.pastParticipantsID[battleData.questionIndex].map(stuID => findStudentByID(stuID))
     } else {
-       [player1, player2] = battleData.currentPlayers.map(stuID => {
-            return classStudents.find(stuObj => stuObj.id === stuID.id)
-        })
+        // [player1, player2] = battleData.currentPlayers.map(stuID => {
+        //     return classStudents.find(stuObj => stuObj.id === stuID.id)
+        // })
+        [player1, player2] = battleData.currentPlayers.map(stuObj => findStudentByID(stuObj.id))
     }
     console.log('battleData', battleData)
-    console.log('altered?', counterTime)
 
     return (
         <div className="battle">
@@ -259,6 +281,11 @@ export function Battle() {
                 </div>
             </div>
             <div className={"control-panel"}>
+                <div className={'flexible-question-add'}>
+                    <button onClick={() => handleFlexAddBtnClick('General')}>One General Quzz</button>
+                    <button onClick={() => handleFlexAddBtnClick('HealthPack')}>One HealthPack Quzz</button>
+                    <button onClick={() => handleFlexAddBtnClick('QuickResponse')}>One QuickResponse Quzz</button>
+                </div>
                 <button
                     disabled={battleData.questionIndex <= 0}
                     onClick={handleLastBtnClick}

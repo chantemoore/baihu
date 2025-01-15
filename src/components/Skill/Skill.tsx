@@ -88,6 +88,7 @@ export default function Skill({userID, name, quantity}: SkillProps) {
 
         // make sure some special skills could just be used once in a round
         const single1RoundSkills = ['grenade']
+
         const rivalPlayerID = battleData.currentPlayers.find(player => player.id !== userID)?.id as number
         if (single1RoundSkills.includes(name) && battleData.combatData.buff[rivalPlayerID].has(name)) {
             setIsDisabled(true)
