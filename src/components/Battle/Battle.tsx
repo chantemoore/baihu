@@ -83,10 +83,12 @@ export function Battle() {
     // set counter behavior
     useEffect(() => {
         function drawSpeaker() {
-            // const { currentPlayers } = battleData
-            setBattleData(draft => {
-                draft.currentSpeakerID = [battleData.currentPlayers[get1RandomNum(2)].id]
-            })
+            const { currentPlayers } = battleData
+            if (currentPlayers.length) {
+                setBattleData(draft => {
+                    draft.currentSpeakerID = [currentPlayers[get1RandomNum(2)].id]
+                })
+            }
         }
 
         if (battleData.isBattleStart) {
@@ -129,6 +131,7 @@ export function Battle() {
 
 
     function matchPlayer() {
+        console.log('Match player...')
         const partStudents = Object.values(battleData.pastParticipantsID).flat()
         const candidates = classStudents.filter(stu => !partStudents.includes(stu.id))
         const get2Random = (range: number): Set<number> =>  {
@@ -210,17 +213,21 @@ export function Battle() {
     }
 
     function handleNextBtnClick() {
-        const {questionIndex} = battleData
+        const {questionIndex, isBattleStart} = battleData
         // add players in history, ensuring everyone can join the battle
-        if (questionIndex >= 0) {
+        if (questionIndex >= 0 && isBattleStart) {
             setBattleData(draft => {
                 draft.pastParticipantsID[battleData.questionIndex] = draft.currentPlayers.map(player => player.id)
             })
         }
+
+        // reset battle status
         resetBattleStatus()
 
-        // match players
+        // match new players
         matchPlayer()
+
+        // increase question index
         // with safeguard in isGameOver atom, don't worry index overflow
         setBattleData(draft => {
             draft.questionIndex = draft.questionIndex + 1
@@ -236,9 +243,8 @@ export function Battle() {
                 "type": quizType,
                 "difficulty": "easy"
             })
-            draft.questionIndex += 1
-            resetBattleStatus()
         })
+        handleNextBtnClick()
     }
 
     // if this question is done before, get the players from pastParticipants, otherwise, match new players
