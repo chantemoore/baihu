@@ -13,6 +13,8 @@ import { battleAtom,
     isReadyTimeOverAtom
 } from '@/atoms/battleAtoms.ts'
 
+import { getBackgroundImage, getAvatarImage } from '@/utils/bgImageUtils.ts';
+
 import successSound from '@/assets/sounds/kinghonor_kill_sound.mp3'
 import failSound from '@/assets/sounds/caibi_sound_shortened.mp3'
 
@@ -38,7 +40,7 @@ interface PlayerBackdropProps {
 }
 
 export default function PlayerBackdrop({player, isAhead}: PlayerBackdropProps) {
-    const {id, name, score, assets, skillSlot} = player;
+    const {id, username, score, assets, skillSlot} = player;
     const [battleData, setBattleData] = useImmerAtom(battleAtom)
     const findStudentByID = useAtomValue(findStudentAtom)
     const classStudents = useAtomValue(classStudentsAtom)
@@ -47,6 +49,7 @@ export default function PlayerBackdrop({player, isAhead}: PlayerBackdropProps) {
     const isJudgeFinished = useAtomValue(isJudgeFinishedAtom)
     const [isChosen, setIsChosen] = useState(false)
     const [isChosable, setisChosable] = useState(false)
+    const avatarImageUrl = getAvatarImage(username)
 
     function handleJudgeBtnClick(isCorrect: boolean) {
         if (isCorrect) {
@@ -97,18 +100,19 @@ export default function PlayerBackdrop({player, isAhead}: PlayerBackdropProps) {
             })
         })
     }
-
     return (
         <div className={`player-backdrop ${isChosen && 'chosen'} ${isChosable && 'can-choose'}`}
+             style={{'backgroundImage': `url(${getBackgroundImage(username)})`}}
              onClick={handleQuickResponseClick}>
-            <div className={"player-name"}>
+            <div className={"player-name"} >
                 {!isJudgeFinished && battleData.isBattleOver && battleData.currentSpeakerID.includes(player.id) && (
                     <button
                         onClick={() => handleJudgeBtnClick(true)}>
                         Correct
                     </button>
                 )}
-                <h1>{name}</h1>
+                {avatarImageUrl && <img className={'avatar'} src={avatarImageUrl}/>}
+                <h1>{username}</h1>
                 {!isJudgeFinished && battleData.isBattleOver && battleData.currentSpeakerID.includes(player.id) && (
                     <button
                         onClick={() => handleJudgeBtnClick(false)}>

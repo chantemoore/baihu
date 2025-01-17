@@ -7,11 +7,18 @@
     cursor: pointer;
   }
 
+  background-size: cover;
+
   border: 1px solid black;
   display: flex;
   flex-direction: column;
   gap: .5em;
   padding: 1em .5em;
+
+  img.avatar {
+    width: 48px;
+    border-radius: 50%;
+  }
 
   h1, h2 {
     margin: 0;
