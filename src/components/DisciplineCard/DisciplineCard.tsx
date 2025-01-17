@@ -1,14 +1,12 @@
 import { Draft, WritableDraft } from 'immer'
 
 import { Student } from '@/types/types'
+import { aRandomNumber } from '@/utils/random-tools.ts'
 import './DisciplineCard.scss'
 
 export default function DisciplineCard(student: WritableDraft<Student>,
                                        setStudentsData: (fn: (draft: WritableDraft<Student[]>) => void) => void) {
     const {id, name, fish, score} = student
-    const aRandomNumber = (stat: number, end: number) => {
-        return Math.floor(Math.random() * (end - stat + 1)) + stat;
-    }
 
     const punishRules = {
         level1: () => {

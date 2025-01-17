@@ -1,25 +1,28 @@
 import { Draft, WritableDraft } from 'immer'
-import { BattleAtomType } from '../../types/atoms.ts'
-import { Student, Question } from "../../types/types.ts";
+
+import { BattleAtomType } from '@/types/atoms.ts'
+import { Student, Question } from "@/types/types.ts";
+
+import { aRandomNumber } from '@/utils/random-tools.ts'
 
 
-const baseScoreDeltaTable = {
+const getBaseScoreDeltaTable = () => ({
     QuickResponse: {
         noBuzz: {
-            win: 10,
-            lose: -30
+            win: aRandomNumber(8, 10),
+            lose: aRandomNumber(-30, -20)
         },
         buzz: {
             win: 20,
             lose: -20
         }
     },
-    Normal: 15,
+    Normal: aRandomNumber(10, 15),
     HealthPack: {
-        win: 10,
+        win: aRandomNumber(8, 15),
         lose: 0
     }
-}
+})
 
 
 export function adjustScore(delta: number,
@@ -39,6 +42,7 @@ export default function calculateResult(setClassStudents: (fn: (draft: WritableD
                                         isJudgeFinished: boolean,
                                         currentQuestion: Question | null) {
     const { currentSpeakerID, combatData } = battleData
+    const baseScoreDeltaTable = getBaseScoreDeltaTable()
 
     let baseScoreDelta : number
     // let extraScoreDelta: number = 0

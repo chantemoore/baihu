@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router'
 import axios from 'axios';
 import { useAtom, useAtomValue } from 'jotai'
 import { useImmerAtom } from 'jotai-immer'
+import { useResetAtom } from 'jotai/utils'
 
 import * as XLSX from 'xlsx'
 
@@ -96,14 +97,17 @@ function ImportClassCoursePage() {
                     }
                 })
 
-                // Store in localStorage
+                // Store classJson in localStorage
                 localStorage.setItem('class', JSON.stringify([{
                     id: Math.floor(Math.random() * 100),
                     name: 'current',
                     students: formattedClassData
                 }]));
+                // store permanent skill assets
                 localStorage.setItem('permentSkillAssets', JSON.stringify(permanentSkillAssetsData))
+                // store question data
                 localStorage.setItem('questions', JSON.stringify(formattedQuestionData));
+
 
                 console.log('Data imported successfully!');
 
@@ -315,12 +319,32 @@ function EndPage() {
         navigate('/')
     }
 
+    function handleReplayBtnClick() {
+        setBattleData(draft => {
+            draft.questionIndex = -1
+            draft.noBuzz = false
+            draft.answerTimeCounter = 4
+            draft.currentPlayers = []
+            draft.currentSpeakerID = []
+            draft.pastParticipantsID = {}
+            draft.isBattleStart =  false
+            draft.isBattleOver =  false
+            draft.isDisplayAnswer =  false
+            draft.isBaseScoreAltered = false
+            draft.combatData = {
+            result: {},
+            buff: {}
+            }
+        })
+    }
+
     return (
         <>
             <div className={"end-page"}>
                 <h1>Game Over!</h1>
                 <div className={"choose-area"}>
                     <button onClick={handleSubmitDataBtnClick}>Submit Data</button>
+                    <button onClick={handleReplayBtnClick}>Replay</button>
                 </div>
             </div>
         </>
