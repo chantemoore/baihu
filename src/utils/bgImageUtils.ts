@@ -6,10 +6,15 @@ export const getBackgroundImage = (username: string): string => {
     }
 }
 
-export const getAvatarImage = (username: string): string => {
-    try {
-        return `/images/avatar/${username}-avatar.jpg`;
-    } catch {
-        return ''
-    }
+export const getAvatarImage = (username: string) => {
+    const requestImage = `/images/avatar/${username}-avatar.jpg`
+    const defaultImage = '/images/avatar/default-avatar.jpg'
+
+    const img = new Image()
+    img.src = requestImage
+
+    return new Promise((resolve) => {
+        img.onload = () => resolve(requestImage)
+        img.onerror = () => resolve(defaultImage)
+    })
 }

@@ -113,7 +113,7 @@ export const isJudgeFinishedAtom = atom((get) => {
     const battleData = get(battleAtom)
     const {combatData, isBattleOver, currentSpeakerID} = battleData
     // 1.have speaker 2.speaker number equals result length(assure everyone's mark is settled) 3.battle over
-    return Object.keys(combatData.result).length === currentSpeakerID.length && isBattleOver && currentSpeakerID.length;
+    return Object.keys(combatData.result).length === currentSpeakerID.length && isBattleOver && Boolean(currentSpeakerID.length);
 })
 
 export const isGameOverAtom = atom((get) => {

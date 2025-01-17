@@ -1,11 +1,26 @@
 .skill {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  gap: .8em;
+  height: 95%;
+  justify-content: space-between;
   padding: .5em;
+  //border: 1px solid #1a1a1a;
 
   &:has(.disabled) {
     //border: crimson 1px solid;
-}
+  }
+
+  h2.skill-name {
+    font-size: 1.8em;
+  }
+
+  h3 {
+    font-size: 1.5em;
+    margin: 0;
+  }
+
   .icon {
     width: 45px;
     height: 45px;
@@ -18,7 +33,7 @@
     &.disabled {
       cursor: not-allowed;
       opacity: .8;
-      border: crimson 1px solid;
+      border: crimson 4px solid;
     }
   }
 }

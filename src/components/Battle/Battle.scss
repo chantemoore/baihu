@@ -13,6 +13,10 @@
     filter: blur(10px);
     transition: filter 0.5s ease;
 
+    h2.question {
+      font-size: 2em;
+    }
+
     h2.red {
       color: red;
     }
@@ -32,14 +36,14 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    top: 1em;
-    left: 3em;
+    top: 1.4em;
+    left: 2em;
     border: 1px dotted black;
-    height: 4em;
-    width: 6em;
+    height: 5em;
+    width: 8em;
 
     p {
-      font-size: 1.8em;
+      font-size: 4em;
       &.warning {
         color: red;
       }
@@ -60,6 +64,9 @@
     flex-direction: column;
     gap: 1em;
     margin-bottom: 1em;
+    button {
+      font-size: 1.3em;
+    }
     div {
       display: flex;
       flex-direction: row;

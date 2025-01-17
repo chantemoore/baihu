@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router'
 import axios from 'axios';
 import { useAtom, useAtomValue } from 'jotai'
 import { useImmerAtom } from 'jotai-immer'
-import { useResetAtom } from 'jotai/utils'
 
 import * as XLSX from 'xlsx'
 
@@ -73,8 +72,8 @@ function ImportClassCoursePage() {
                         goldBell: item.goldBell
                     },
                     skillSlot: {
-                        "permanent": ["duck", "grenade", "goldBell"],
-                        "temporary": ["medKit", "nucBomb"]
+                        "permanent": ["duck", "goldBell"],
+                        "temporary": ["medKit", "nucBomb", "grenade"]
                     },
                 }));
 

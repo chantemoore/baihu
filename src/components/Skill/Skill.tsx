@@ -151,11 +151,11 @@ export default function Skill({userID, name, quantity}: SkillProps) {
 
     return (
         <div className={"skill"}>
-            <p className={"skill-name"}>{zh_name}</p>
+            <h2 className={"skill-name"}>{zh_name}</h2>
             <img
                 onClick={handleSkillIconClick}
                 className={`icon ${isDisabled && 'disabled'}`} src={ImgUrl} alt={`${name} icon`}/>
-            <p>{quantity}</p>
+            <h3>{quantity}</h3>
         </div>
     )
 }

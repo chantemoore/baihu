@@ -49,7 +49,15 @@ export default function PlayerBackdrop({player, isAhead}: PlayerBackdropProps) {
     const isJudgeFinished = useAtomValue(isJudgeFinishedAtom)
     const [isChosen, setIsChosen] = useState(false)
     const [isChosable, setisChosable] = useState(false)
-    const avatarImageUrl = getAvatarImage(username)
+    // const avatarImageUrl =  getAvatarImage(username)
+    const [avatarImageUrl, setAvatarImageUrl] = useState('/images/avatar/default-avatar.jpg')
+    useEffect(() => {
+        const getImage = async () => {
+            const url = await getAvatarImage(username)
+            setAvatarImageUrl(url as string)
+        }
+        getImage()
+    }, [username]);
 
     function handleJudgeBtnClick(isCorrect: boolean) {
         if (isCorrect) {
@@ -107,6 +115,7 @@ export default function PlayerBackdrop({player, isAhead}: PlayerBackdropProps) {
             <div className={"player-name"} >
                 {!isJudgeFinished && battleData.isBattleOver && battleData.currentSpeakerID.includes(player.id) && (
                     <button
+                        className={'right-btn'}
                         onClick={() => handleJudgeBtnClick(true)}>
                         Correct
                     </button>
@@ -115,6 +124,7 @@ export default function PlayerBackdrop({player, isAhead}: PlayerBackdropProps) {
                 <h1>{username}</h1>
                 {!isJudgeFinished && battleData.isBattleOver && battleData.currentSpeakerID.includes(player.id) && (
                     <button
+                        className={'false-btn'}
                         onClick={() => handleJudgeBtnClick(false)}>
                         False
                     </button>)}

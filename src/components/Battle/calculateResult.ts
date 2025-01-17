@@ -17,7 +17,10 @@ const getBaseScoreDeltaTable = () => ({
             lose: -20
         }
     },
-    Normal: aRandomNumber(10, 15),
+    Normal: {
+        win: aRandomNumber(10, 15),
+        lose: aRandomNumber(5, 8)
+    },
     HealthPack: {
         win: aRandomNumber(8, 15),
         lose: 0
@@ -81,9 +84,9 @@ export default function calculateResult(setClassStudents: (fn: (draft: WritableD
 
         // win, get 15 points
         if (combatData.result[mainSpeakerStuID]) {
-            baseScoreDelta = baseScoreDeltaTable.Normal
+            baseScoreDelta = baseScoreDeltaTable.Normal.win
         } else {
-            baseScoreDelta = -baseScoreDeltaTable.Normal
+            baseScoreDelta = -baseScoreDeltaTable.Normal.lose
         }
     } else {
         if (combatData.result[mainSpeakerStuID]) {
