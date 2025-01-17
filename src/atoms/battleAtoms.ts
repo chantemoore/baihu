@@ -1,5 +1,5 @@
 import { atom } from 'jotai'
-import { atomWithStorage } from 'jotai/utils'
+import { atomWithDefault } from 'jotai/utils'
 
 import { produce } from 'immer'
 import type { WritableDraft } from 'immer'
@@ -8,7 +8,7 @@ import { BattleAtomType } from '../types/atoms.ts'
 import { Class, Course, Student } from '../types/types.ts'
 
 // export const classDataAtom = atom<Class[]>([])
-export const classDataAtom = atomWithStorage<Class[]>('classDataAsync', [])
+export const classDataAtom = atom<Class[]>([])
 
 export const classCourseSelectedAtom  = atom<{
     selectComplete: boolean
@@ -66,8 +66,7 @@ export const findStudentAtom = atom((get) => (stuID: number) => {
 export const battleAtom = atom<BattleAtomType>({
     questionIndex: -1,
     noBuzz: false,
-    readyTimeOver: false,
-    answerTimeOver: false,
+    answerTimeCounter: 4,
     totalQuestions: [],
     currentPlayers: [],
     // main speaker is at thr head
@@ -83,6 +82,23 @@ export const battleAtom = atom<BattleAtomType>({
     }
 })
 
+export const readyTimeCounterAtom = atomWithDefault((get) => {
+    const generalReadyTime = 2
+    const quickResponseReadyTime = 3
+    const currentQuestion = get(currentQuestionAtom)
+    return currentQuestion?.type === 'QuickResponse' ? quickResponseReadyTime : generalReadyTime as number
+})
+
+export const isReadyTimeOverAtom = atom((get) => {
+    const readyTimeCounter = get(readyTimeCounterAtom)
+    return readyTimeCounter <= 0
+})
+
+export const isAnswerTimeOverAtom = atom((get) => {
+    const battleData = get(battleAtom)
+    return battleData.answerTimeCounter <= 0
+})
+
 export const currentQuestionAtom = atom((get) => {
     const battleData = get(battleAtom)
     const {questionIndex, totalQuestions} = battleData
@@ -96,7 +112,8 @@ export const currentQuestionAtom = atom((get) => {
 export const isJudgeFinishedAtom = atom((get) => {
     const battleData = get(battleAtom)
     const {combatData, isBattleOver, currentSpeakerID} = battleData
-    return Object.keys(combatData.result).length === currentSpeakerID.length && isBattleOver;
+    // 1.have speaker 2.speaker number equals result length(assure everyone's mark is settled) 3.battle over
+    return Object.keys(combatData.result).length === currentSpeakerID.length && isBattleOver && currentSpeakerID.length;
 })
 
 export const isGameOverAtom = atom((get) => {

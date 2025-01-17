@@ -1,6 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useAtomValue, useAtom } from 'jotai'
 import { useImmerAtom } from 'jotai-immer'
+import { useResetAtom } from 'jotai/utils'
+
 import axios from 'axios';
 
 import { Question, Student } from "@/types/types.ts";
@@ -10,7 +12,10 @@ import {
     battleAtom,
     findStudentAtom,
     currentQuestionAtom,
-    isJudgeFinishedAtom } from '@/atoms/battleAtoms.ts'
+    isJudgeFinishedAtom,
+    readyTimeCounterAtom,
+    isAnswerTimeOverAtom,
+    isReadyTimeOverAtom} from '@/atoms/battleAtoms.ts'
 import calculateResult from './calculateResult.ts'
 
 import './Battle.scss'
@@ -20,9 +25,6 @@ import mockQuestions from '../../../test/questions.json'
 const isBackendReady = false
 const isDev = false
 
-const generalReadyTime = 1
-const quickResponseReadyTime = 2
-
 
 export function Battle() {
     const [battleData, setBattleData] = useImmerAtom(battleAtom)
@@ -30,11 +32,14 @@ export function Battle() {
     const [classStudents, setClassStudents] = useAtom(classStudentsAtom)
     const findStudentByID = useAtomValue(findStudentAtom)
     const currentQuestion = useAtomValue(currentQuestionAtom)
-    const counterTime = currentQuestion?.type === 'QuickResponse' ? quickResponseReadyTime : generalReadyTime
-    const [counter, setCounter] = useState(counterTime)
+    const isReadyTimeOver = useAtomValue(isReadyTimeOverAtom)
+    const isAnswerTimeOver = useAtomValue(isAnswerTimeOverAtom)
+    const [readyTimeCounter, setReadyTimeCounter] = useAtom(readyTimeCounterAtom)
+    const resetReadyTime = useResetAtom(readyTimeCounterAtom)
+    const [counter, setCounter] = useState(isReadyTimeOver ? battleData.answerTimeCounter : readyTimeCounter)
     useEffect(() => {
-        setCounter(counterTime)
-    }, [counterTime]);
+        setCounter(isReadyTimeOver ? battleData.answerTimeCounter : readyTimeCounter)
+    }, [battleData.answerTimeCounter, isReadyTimeOver, readyTimeCounter]);
 
 
     const get1RandomNum = (range: number) => {
@@ -55,12 +60,12 @@ export function Battle() {
                 })
             })
         } else if(isDev) {
-            console.log('Backend is not ready, use mock data instead')
+            console.log('Backend is not ready, use mock data instead!')
             setBattleData(draft => {
                 draft.totalQuestions = mockQuestions as Question[]
             })
         } else {
-            console.log('use import data')
+            console.log('use import data!')
             try {
                 const storedData = localStorage.getItem('questions')
                 if (storedData) {
@@ -83,48 +88,57 @@ export function Battle() {
         }
         }, [setBattleData]);
 
-    // set counter behavior
+
+
+    // set ready time counter behavior
     useEffect(() => {
+        if (battleData.isBattleStart && !isReadyTimeOver) {
+            const timer = setInterval(() => {
+                setReadyTimeCounter(pre => pre - 1)
+            }, 1000)
+            if (readyTimeCounter === 0) {
+                clearInterval(timer)
+            }
+            return () => clearInterval(timer)
+        }
+        // battleData.currentPlayers, currentQuestion?.type, battleData.isBattleOver, battleData.isBattleStart, battleData.questionIndex, battleData.totalQuestions, counter, isJudgeFinished, setBattleData, currentQuestion
+        // [battleData.currentPlayers, currentQuestion, battleData.isBattleOver, battleData.isBattleStart, battleData.questionIndex, battleData.totalQuestions, counter, isJudgeFinished, setBattleData, battleData.currentSpeakerID.length]
+    }, [battleData.isBattleStart, isReadyTimeOver, readyTimeCounter, setReadyTimeCounter]);
+
+    useEffect(() => {
+        const {currentPlayers, isBattleStart, isBattleOver, currentSpeakerID} = battleData
         function drawSpeaker() {
-            const { currentPlayers } = battleData
             if (currentPlayers.length) {
                 setBattleData(draft => {
                     draft.currentSpeakerID = [currentPlayers[get1RandomNum(2)].id]
                 })
             }
         }
+        // ready over and start to count answer time
+        if (isBattleStart && isReadyTimeOver && !isBattleOver && currentQuestion && !currentSpeakerID.length) {
+            drawSpeaker()
+        }
+    }, [battleData.currentSpeakerID, battleData.isBattleOver, currentQuestion, isReadyTimeOver, setBattleData]);
 
-        if (battleData.isBattleStart) {
+    // handle answer timer counter
+    useEffect(() => {
+        if (battleData.isBattleStart && isReadyTimeOver && !battleData.isBattleOver) {
             const timer = setInterval(() => {
-                setCounter(pre => pre - 1)
-            }, 1000)
-
-            if (counter === 0) {
                 setBattleData(draft => {
-                    draft.readyTimeOver = true
+                    draft.answerTimeCounter -= 1
+                })
+            }, 1000)
+            // run out of answer time
+            if (isAnswerTimeOver) {
+                clearInterval(timer)
+                setBattleData(draft => {
+                    draft.isBattleOver = true
                 })
             }
-
-            if (counter === 0 || battleData.isBattleOver) {
-                clearInterval(timer)
-            }
-            if (counter === 0 && !battleData.isBattleOver) {
-                if (currentQuestion) {
-                    if (currentQuestion.type === 'QuickResponse') {
-                        if (!battleData.currentSpeakerID.length) {
-                            drawSpeaker()
-                        }
-                    } else {
-                        console.log('I run...')
-                        drawSpeaker()
-                    }
-                }
-            }
-
             return () => clearInterval(timer)
         }
-        // battleData.currentPlayers, currentQuestion?.type, battleData.isBattleOver, battleData.isBattleStart, battleData.questionIndex, battleData.totalQuestions, counter, isJudgeFinished, setBattleData, currentQuestion
-    }, [battleData.currentPlayers, currentQuestion, battleData.isBattleOver, battleData.isBattleStart, battleData.questionIndex, battleData.totalQuestions, counter, isJudgeFinished, setBattleData, battleData.currentSpeakerID.length]);
+
+    }, [battleData.isBattleOver, battleData.isBattleStart, isAnswerTimeOver, isReadyTimeOver, setBattleData]);
 
     useEffect(() => {
         if (isJudgeFinished) {
@@ -166,8 +180,7 @@ export function Battle() {
     }
 
     function resetBattleStatus() {
-        // reset counter
-        setCounter(counterTime)
+        resetReadyTime()
         // reset battle status
         setBattleData(pre => ({
             ...pre,
@@ -177,8 +190,7 @@ export function Battle() {
                 result: {},
                 buff: {}
             },
-            readyTimeOver: false,
-            answerTimeOver: false,
+            answerTimeCounter: 4,
             isBattleStart: false,
             isBattleOver: false,
             isBaseScoreAltered: false,
@@ -233,7 +245,7 @@ export function Battle() {
         // increase question index
         // with safeguard in isGameOver atom, don't worry index overflow
         setBattleData(draft => {
-            draft.questionIndex = draft.questionIndex + 1
+            draft.questionIndex += 1
         })
     }
 

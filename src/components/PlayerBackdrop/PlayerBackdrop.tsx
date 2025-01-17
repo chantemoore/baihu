@@ -5,10 +5,16 @@ import { useAtomValue } from 'jotai'
 import { Student } from '@/types/types.ts';
 import Skill from '../Skill/Skill.tsx';
 import './PlayerBackdrop.scss';
-import { battleAtom, isJudgeFinishedAtom, currentQuestionAtom, findStudentAtom, classStudentsAtom } from '@/atoms/battleAtoms.ts'
+import { battleAtom,
+    isJudgeFinishedAtom,
+    currentQuestionAtom,
+    findStudentAtom,
+    classStudentsAtom,
+    isReadyTimeOverAtom
+} from '@/atoms/battleAtoms.ts'
 
 import successSound from '@/assets/sounds/kinghonor_kill_sound.mp3'
-import failSound from '@/assets/sounds/caibi_sound.mp3'
+import failSound from '@/assets/sounds/caibi_sound_shortened.mp3'
 
 
 const playAudio = (audioObj: string): Promise<void> => {
@@ -37,6 +43,7 @@ export default function PlayerBackdrop({player, isAhead}: PlayerBackdropProps) {
     const findStudentByID = useAtomValue(findStudentAtom)
     const classStudents = useAtomValue(classStudentsAtom)
     const currentQuestion = useAtomValue(currentQuestionAtom)
+    const isReadyTimeOver = useAtomValue(isReadyTimeOverAtom)
     const isJudgeFinished = useAtomValue(isJudgeFinishedAtom)
     const [isChosen, setIsChosen] = useState(false)
     const [isChosable, setisChosable] = useState(false)
@@ -58,12 +65,12 @@ export default function PlayerBackdrop({player, isAhead}: PlayerBackdropProps) {
         } else {
             setIsChosen(false)
         }
-        if (currentQuestion?.type === 'QuickResponse' && battleData.isBattleStart && !battleData.readyTimeOver && !isChosen) {
+        if (currentQuestion?.type === 'QuickResponse' && battleData.isBattleStart && !isReadyTimeOver && !isChosen) {
             setisChosable(true)
         } else {
             setisChosable(false)
         }
-    }, [battleData.currentSpeakerID, battleData.isBattleStart, battleData.readyTimeOver, currentQuestion?.type, id, isChosen]);
+    }, [battleData.currentSpeakerID, battleData.isBattleStart, isReadyTimeOver, currentQuestion?.type, id, isChosen]);
 
 
     function handleQuickResponseClick() {
