@@ -7,13 +7,22 @@ import { useImmerAtom } from 'jotai-immer'
 import * as XLSX from 'xlsx'
 
 import { Battle } from "@/components/Battle/Battle.tsx";
+import { downloadAsExcel } from '@/utils/downloadAsExcel'
+import { ClassImportDataType } from '@/types/types.ts'
 
-import { classCourseSelectedAtom, classStudentsAtom, classDataAtom, availableCoursesAtom, battleAtom, isGameOverAtom } from '@/atoms/battleAtoms.ts'
+import { classCourseSelectedAtom,
+    classStudentsAtom,
+    classDataAtom,
+    availableCoursesAtom,
+    battleAtom,
+    isGameOverAtom,
+    isUseCacheAtom} from '@/atoms/battleAtoms.ts'
 
 import './BattlePage.scss'
 import mockClass from '../../../../test/classes.json'
 import chooseFileIcon from '@/assets/icons/choose_file.svg'
-import {Question, Student} from "@/types/types.ts";
+import { Question, Student} from "@/types/types.ts";
+import { battleCacheType } from '@/types/utils'
 
 const isBackendReady = false
 const isDev = false
@@ -23,9 +32,10 @@ function ImportClassCoursePage() {
     const [studentFile, setStudentFile] = useState<File | null>(null)
     const [questionFile, setQuestionFile] = useState<File | null>(null)
     const [, setClassCourseSelected] = useImmerAtom(classCourseSelectedAtom)
+    const [, setIsUseCache] = useAtom(isUseCacheAtom)
 
 
-    const convertExcelToJson = async (file: File) => {
+    const convertExcelToJson = async (file: File): Promise<ClassImportDataType[]> => {
         return new Promise((resolve, reject) => {
             const reader = new FileReader()
             reader.onload = (event) => {
@@ -54,13 +64,15 @@ function ImportClassCoursePage() {
         } else {
             try {
                 // Convert both Excel files to JSON
-                const classJsonData = await convertExcelToJson(studentFile);
+                const classJsonData: ClassImportDataType[] = await convertExcelToJson(studentFile);
                 const questionJsonData = await convertExcelToJson(questionFile);
 
                 // Transform to required structure
-                const formattedClassData: Student[] = classJsonData.map((item: any) => ({
+                const formattedClassData: Student[] = classJsonData
+                    .filter(item => item.isActive)
+                    .map((item) => ({
                     id: item.id?.toString(),
-                    name: item.name || '',
+                    name: item.name,
                     username: item.username || '',
                     fish: item.fish,
                     score: Number(item.score),
@@ -68,14 +80,16 @@ function ImportClassCoursePage() {
                         duck: item.duck,
                         grenade: item.grenade,
                         nucBomb: item.nucBomb,
+                        reliefTroop: item.reliefTroop,
                         medKit: item.medKit,
                         goldBell: item.goldBell
                     },
                     skillSlot: {
-                        "permanent": ["duck", "goldBell"],
+                        "permanent": ["duck", "goldBell", "reliefTroop"],
                         "temporary": ["medKit", "nucBomb", "grenade"]
                     },
-                }));
+                })
+                );
 
                 const formattedQuestionData: Question[] = questionJsonData.map((item: any) => ({
                     id: item.ID?.toString(),
@@ -91,7 +105,7 @@ function ImportClassCoursePage() {
                 classJsonData.forEach((item) => {
                     permanentSkillAssetsData[item.id] = {
                         duck: item.duck,
-                        grenade: item.grenade,
+                        reliefTroop: item.reliefTroop,
                         goldBell: item.goldBell
                     }
                 })
@@ -103,10 +117,9 @@ function ImportClassCoursePage() {
                     students: formattedClassData
                 }]));
                 // store permanent skill assets
-                localStorage.setItem('permentSkillAssets', JSON.stringify(permanentSkillAssetsData))
+                localStorage.setItem('permanentSkillAssets', JSON.stringify(permanentSkillAssetsData))
                 // store question data
                 localStorage.setItem('questions', JSON.stringify(formattedQuestionData));
-
 
                 console.log('Data imported successfully!');
 
@@ -117,6 +130,33 @@ function ImportClassCoursePage() {
             } catch (error) {
                 console.error('Error processing files:', error);
             }
+        }
+    }
+
+    function handleContinueBtn() {
+        const cache = localStorage.getItem('battle_cache')
+        const cacheData: battleCacheType = cache ? JSON.parse(cache) : {}
+        if (Object.keys(cacheData).length) {
+            // complete data import
+            setClassCourseSelected(draft => {
+                draft.importComplete = true
+            })
+            setIsUseCache(true)
+        } else {
+            alert('No cache stored!')
+        }
+    }
+
+    function handleCleanCacheBtn() {
+        localStorage.removeItem('battle_cache')
+    }
+
+    function handleDownloadCacheBtnClick() {
+        const cache = localStorage.getItem('battle_cache')
+        if (cache) {
+            downloadAsExcel(JSON.parse(cache).class_data.students, {})
+        } else {
+            alert('No cache found!')
         }
     }
 
@@ -163,9 +203,19 @@ function ImportClassCoursePage() {
                         {questionFile?.name}
                     </p>
                 </div>
-                <button
-                    onClick={handleSubmitBtnClick}
-                >Submit</button>
+                <div className={'control-btns'}>
+                    <button
+                        onClick={handleSubmitBtnClick}
+                    >Submit
+                    </button>
+                    <button onClick={handleContinueBtn}>
+                        Continue
+                    </button>
+                    <button onClick={handleCleanCacheBtn}>
+                        Clear cache
+                    </button>
+                    <button onClick={handleDownloadCacheBtnClick}>Download Cache</button>
+                </div>
             </form>
         </div>
     )
@@ -284,13 +334,9 @@ function EndPage() {
     const [, setBattleData] = useImmerAtom(battleAtom)
     const classStudents = useAtomValue(classStudentsAtom)
     const handleSubmitDataBtnClick = () => {
-        const permData = localStorage.getItem('permentSkillAssets')
-        let parsedData
-        if (permData) {
-            parsedData = JSON.parse(permData)
-        } else {
-            parsedData = {}
-        }
+        const permData = localStorage.getItem('permanentSkillAssets')
+        const parsedData = permData ? JSON.parse(permData) : {}
+
         // download battle data
         const ExcelData = classStudents.map(item => ({
             "id": item.id,
@@ -300,6 +346,7 @@ function EndPage() {
             "score": item.score,
             "medKit": item.assets.medKit,
             "nucBomb": item.assets.nucBomb,
+            "grenade": item.assets.grenade,
             ...parsedData[item.id]
             })
         )
@@ -309,6 +356,7 @@ function EndPage() {
         // 将工作表添加到工作簿
         XLSX.utils.book_append_sheet(wb, ws, "Students");
         XLSX.writeFile(wb, "students.xlsx");
+        // downloadAsExcel(classStudents, parsedData)
 
 
         // reset question index, since over button's functioning is based on question-index change

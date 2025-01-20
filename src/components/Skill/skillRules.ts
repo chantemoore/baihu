@@ -1,14 +1,15 @@
 import {WritableDraft} from 'immer'
 import {useImmerAtom} from 'jotai-immer';
 
-import {battleAtom, classStudentsAtom} from '../../atoms/battleAtoms.ts';
+import {battleAtom, classStudentsAtom} from '@/atoms/battleAtoms.ts';
 import {adjustScore} from '../Battle/calculateResult.ts'
-import {Student} from '../../types/types.ts'
+import {Student} from '@/types/types.ts'
+import { aRandomNumber } from '@/utils/random-tools.ts'
 
 
 export function useSkillRules() {
-    const [, setBattleData] = useImmerAtom(battleAtom);
-    const [, setClassStudentsData] = useImmerAtom(classStudentsAtom)
+    const [battleData, setBattleData] = useImmerAtom(battleAtom);
+    const [classStudentsData, setClassStudentsData] = useImmerAtom(classStudentsAtom)
 
     const duckRule = () => {
         console.log('use duck!')
@@ -31,6 +32,14 @@ export function useSkillRules() {
         })
         }
 
+    const reliefTroopRule = () => {
+        setBattleData((draft) => {
+            const candidateStus = classStudentsData.filter(stuObj => !battleData.currentPlayers
+                .some(player => player.id === stuObj.id))
+            draft.reliefPerson = candidateStus ? candidateStus[aRandomNumber(0, candidateStus.length)] : null
+        })
+    }
+
     const nucBombRule = () =>  {
         setBattleData(draft => {
             draft.isBattleOver = true
@@ -50,6 +59,7 @@ export function useSkillRules() {
         medKit: medKitRule,
         duck: duckRule,
         grenade: grenadeRule,
-        nucBomb: nucBombRule
+        nucBomb: nucBombRule,
+        reliefTroop: reliefTroopRule
     }
 }

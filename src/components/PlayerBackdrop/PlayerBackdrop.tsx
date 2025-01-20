@@ -49,6 +49,11 @@ export default function PlayerBackdrop({player, isAhead}: PlayerBackdropProps) {
     const isJudgeFinished = useAtomValue(isJudgeFinishedAtom)
     const [isChosen, setIsChosen] = useState(false)
     const [isChosable, setisChosable] = useState(false)
+    const [hasRelief, setHasRelief] = useState(false)
+    useEffect(() => {
+        setHasRelief(false)
+    }, [battleData.questionIndex]);
+
     // const avatarImageUrl =  getAvatarImage(username)
     const [avatarImageUrl, setAvatarImageUrl] = useState('/images/avatar/default-avatar.jpg')
     useEffect(() => {
@@ -129,18 +134,21 @@ export default function PlayerBackdrop({player, isAhead}: PlayerBackdropProps) {
                         False
                     </button>)}
             </div>
+            {hasRelief && battleData.reliefPerson && <div className={'relief-player'}>援军：{battleData.reliefPerson.username}</div>}
             <button onClick={handleReshuffleBtnClick}>Reshuffle</button>
             <h2 className={`${isAhead && 'advantage'}`}>{score}</h2>
             <div className={"skills-board"}>
                 <div className={'permanent-skills'}>
                     {skillSlot.permanent.map((skill) => {
                         return <Skill key={skill} userID={player.id} name={skill}
+                                      setHasRelief={setHasRelief}
                                       quantity={assets[skill as keyof typeof assets]}/>
                     })}
                 </div>
                 <div className={'temporary-skills'}>
                     {skillSlot.temporary.map((skill) => {
                         return <Skill key={skill} userID={player.id} name={skill}
+                                      setHasRelief={setHasRelief}
                                       quantity={assets[skill as keyof typeof assets]}/>
                     })}
                 </div>

@@ -13,7 +13,8 @@ import './Skills.scss'
 interface SkillProps {
     userID: number
     name: string
-    quantity: number
+    quantity: number,
+    setHasRelief: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 interface skills {
@@ -28,17 +29,18 @@ interface skills {
 const skillIcons: {[key: string]: string} = {
     duck: 'src/assets/icons/run.svg',
     grenade: 'src/assets/icons/grenade.svg',
+    reliefTroop: 'src/assets/icons/cry.png',
     nucBomb: 'src/assets/icons/nucBomb.png',
     medKit: 'src/assets/icons/medKit.png',
     goldBell: 'src/assets/icons/bell.svg'
 }
 
 
-export default function Skill({userID, name, quantity}: SkillProps) {
+export default function Skill({userID, name, quantity, setHasRelief}: SkillProps) {
     const ImgUrl = skillIcons[name]
     const [battleData, setBattleData] = useImmerAtom(battleAtom)
     const isJudgeFinished = useAtomValue(isJudgeFinishedAtom)
-    const [, setStudentsData] = useImmerAtom(classStudentsAtom)
+    const [classStudentsData, setStudentsData] = useImmerAtom(classStudentsAtom)
     const [findStudentByID] = useAtom(findStudentAtom)
     const [isDisabled, setIsDisabled] = useState(true)
     const [isUsed, setIsUsed] = useState(false)
@@ -47,11 +49,15 @@ export default function Skill({userID, name, quantity}: SkillProps) {
 
     const skillRules = useSkillRules()
 
+    // clear skill isUsed state when question change
+    useEffect(() => {
+        setIsUsed(false)
+    }, [battleData.questionIndex]);
 
     useEffect(() => {
         // skills of no stock or used in the round are banned.
         if (quantity === 0 || isUsed)  {
-            console.log('No account! or is used once')
+            console.log(`No account! or ${name} is used once`)
             setIsDisabled(true)
         } else {
             if(battleData.currentSpeakerID.includes(userID)) {
@@ -63,6 +69,8 @@ export default function Skill({userID, name, quantity}: SkillProps) {
                     setIsDisabled(!useTime.beforeJudge)
                 } else if(battleData.isBattleOver && isJudgeFinished) {
                     setIsDisabled(!useTime.afterJudge)
+                } else if(classStudentsData.length <= 2) {
+                    setIsDisabled(!useTime.lessThan2)
                 } else {
                     setIsDisabled(true)
                 }
@@ -70,7 +78,6 @@ export default function Skill({userID, name, quantity}: SkillProps) {
             if(isJudgeFinished && battleData.combatData.result?.[userID] === false) {
                 setIsDisabled(!useTime.whenInjured)
             }
-
         }
 
         // make sure no using of skills of similar effects per user
@@ -144,6 +151,10 @@ export default function Skill({userID, name, quantity}: SkillProps) {
                 }
                 if (name === 'nucBomb') {
                     skillRules.nucBomb()
+                }
+                if (name === 'reliefTroop') {
+                    skillRules.reliefTroop()
+                    setHasRelief(true)
                 }
             }
         } // NO code after this closed curly bracket!

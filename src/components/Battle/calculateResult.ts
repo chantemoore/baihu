@@ -13,16 +13,16 @@ const getBaseScoreDeltaTable = () => ({
             lose: aRandomNumber(-30, -20)
         },
         buzz: {
-            win: 20,
-            lose: -20
+            win: aRandomNumber(12, 15),
+            lose: aRandomNumber(-25, -20)
         }
     },
     Normal: {
-        win: aRandomNumber(10, 15),
-        lose: aRandomNumber(5, 8)
+        win: aRandomNumber(5, 10),
+        lose: aRandomNumber(8, 15)
     },
     HealthPack: {
-        win: aRandomNumber(8, 15),
+        win: aRandomNumber(2, 5),
         lose: 0
     }
 })

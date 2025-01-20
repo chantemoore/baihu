@@ -7,6 +7,10 @@ import type { WritableDraft } from 'immer'
 import { BattleAtomType } from '../types/atoms.ts'
 import { Class, Course, Student } from '../types/types.ts'
 
+const generalReadyTime = 5
+const quickResponseReadyTime = 8
+export const answerTime = 20
+
 // export const classDataAtom = atom<Class[]>([])
 export const classDataAtom = atom<Class[]>([])
 
@@ -66,12 +70,13 @@ export const findStudentAtom = atom((get) => (stuID: number) => {
 export const battleAtom = atom<BattleAtomType>({
     questionIndex: -1,
     noBuzz: false,
-    answerTimeCounter: 4,
+    answerTimeCounter: answerTime,
     totalQuestions: [],
     currentPlayers: [],
     // main speaker is at thr head
     currentSpeakerID: [],
     pastParticipantsID: {},
+    reliefPerson: null,
     isBattleStart: false,
     isBattleOver: false,
     isDisplayAnswer: false,
@@ -83,8 +88,6 @@ export const battleAtom = atom<BattleAtomType>({
 })
 
 export const readyTimeCounterAtom = atomWithDefault((get) => {
-    const generalReadyTime = 2
-    const quickResponseReadyTime = 3
     const currentQuestion = get(currentQuestionAtom)
     return currentQuestion?.type === 'QuickResponse' ? quickResponseReadyTime : generalReadyTime as number
 })
@@ -121,3 +124,5 @@ export const isGameOverAtom = atom((get) => {
     const {totalQuestions: {length}, questionIndex} = battleData
     return length <= questionIndex
 })
+
+export const isUseCacheAtom = atom(false)

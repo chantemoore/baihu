@@ -2,12 +2,14 @@ import { useEffect, useState } from 'react'
 import { useAtomValue, useAtom } from 'jotai'
 import { useImmerAtom } from 'jotai-immer'
 import { useResetAtom } from 'jotai/utils'
+import { useAutoSave } from '@/hooks/useAutoSave.ts'
 
 import axios from 'axios';
 
 import { Question, Student } from "@/types/types.ts";
 import PlayerBackdrop from "../../components/PlayerBackdrop/PlayerBackdrop.tsx";
 import {
+    classDataAtom,
     classStudentsAtom,
     battleAtom,
     findStudentAtom,
@@ -15,7 +17,9 @@ import {
     isJudgeFinishedAtom,
     readyTimeCounterAtom,
     isAnswerTimeOverAtom,
-    isReadyTimeOverAtom} from '@/atoms/battleAtoms.ts'
+    isReadyTimeOverAtom,
+    isUseCacheAtom} from '@/atoms/battleAtoms.ts'
+import { answerTime } from '@/atoms/battleAtoms.ts'
 import calculateResult from './calculateResult.ts'
 
 import './Battle.scss'
@@ -30,6 +34,7 @@ export function Battle() {
     const [battleData, setBattleData] = useImmerAtom(battleAtom)
     const [isJudgeFinished,] = useAtom(isJudgeFinishedAtom)
     const [classStudents, setClassStudents] = useAtom(classStudentsAtom)
+    const [classData, setClassData] = useAtom(classDataAtom)
     const findStudentByID = useAtomValue(findStudentAtom)
     const currentQuestion = useAtomValue(currentQuestionAtom)
     const isReadyTimeOver = useAtomValue(isReadyTimeOverAtom)
@@ -37,6 +42,23 @@ export function Battle() {
     const [readyTimeCounter, setReadyTimeCounter] = useAtom(readyTimeCounterAtom)
     const resetReadyTime = useResetAtom(readyTimeCounterAtom)
     const [counter, setCounter] = useState(isReadyTimeOver ? battleData.answerTimeCounter : readyTimeCounter)
+    const [isUseCache, ] = useAtom(isUseCacheAtom)
+    const [isCenterBtnDisable, setIsCenterBtnDisable] = useState(false)
+
+    useEffect(() => {
+        if(!isReadyTimeOver && battleData.isBattleStart) {
+            setIsCenterBtnDisable(true)
+        } else {
+            setIsCenterBtnDisable(false)
+        }
+    }, [isReadyTimeOver, battleData.isBattleStart]);
+
+    // auto save class data per 1 minute
+    useAutoSave('battle_cache', {
+        class_data: classData,
+        battle_data: battleData
+    })
+
     useEffect(() => {
         setCounter(isReadyTimeOver ? battleData.answerTimeCounter : readyTimeCounter)
     }, [battleData.answerTimeCounter, isReadyTimeOver, readyTimeCounter]);
@@ -86,8 +108,7 @@ export function Battle() {
                 })
             }
         }
-        }, [setBattleData]);
-
+        }, [isUseCache, setBattleData, setClassData]);
 
 
     // set ready time counter behavior
@@ -190,7 +211,7 @@ export function Battle() {
                 result: {},
                 buff: {}
             },
-            answerTimeCounter: 4,
+            answerTimeCounter: answerTime,
             isBattleStart: false,
             isBattleOver: false,
             isBaseScoreAltered: false,
@@ -319,6 +340,7 @@ export function Battle() {
                     </button>
                     <button
                         onClick={handleCenterBtnClick}
+                        disabled={isCenterBtnDisable}
                         className={"start"}>{!battleData.isBattleStart
                         ? '开始'
                         : (!battleData.isBattleOver ? '停止计时' : (battleData.isDisplayAnswer ? '隐藏答案' : '显示答案'))}</button>

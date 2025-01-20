@@ -26,8 +26,8 @@ export interface Student {
     score: number
     assets: Assets
     skillSlot: SkillSlot
-    avatar: string
-    bgImg: string
+    avatar?: string
+    bgImg?: string
 }
 
 export interface Question {
@@ -52,4 +52,21 @@ export interface Class {
     name: string
     courses: Course[]
     students: Student[]
+}
+
+export interface ClassImportDataType {
+    id: number
+    name: string
+    username: string
+    fish: number
+    score: number
+    reliefTroop: number
+    duck: number
+    grenade: number
+    nucBomb: number
+    medKit: number
+    goldBell: number
+    bg: boolean
+    avatar: boolean
+    isActive: boolean
 }

@@ -6,7 +6,19 @@
       "inBattle": true,
       "beforeJudge": false,
       "afterJudge": false,
-      "whenInjured": false
+      "whenInjured": false,
+      "lessThan2": true
+    }
+  },
+  "reliefTroop": {
+    "zh_name": "援军",
+    "useTime": {
+      "beforeBattle": true,
+      "inBattle": true,
+      "beforeJudge": false,
+      "afterJudge": false,
+      "whenInjured": false,
+      "lessThan2": false
     }
   },
   "grenade": {
@@ -16,7 +28,8 @@
       "inBattle": true,
       "beforeJudge": false,
       "afterJudge": false,
-      "whenInjured": false
+      "whenInjured": false,
+      "lessThan2": true
     }
   },
   "mine": {
@@ -26,7 +39,8 @@
       "inBattle": false,
       "beforeJudge": false,
       "afterJudge": false,
-      "whenInjured": false
+      "whenInjured": false,
+      "lessThan2": true
     }
   },
   "goldBell": {
@@ -36,7 +50,8 @@
       "inBattle": true,
       "beforeJudge": true,
       "afterJudge": false,
-      "whenInjured": false
+      "whenInjured": false,
+      "lessThan2": true
     }
   },
   "medKit": {
@@ -46,7 +61,8 @@
       "inBattle": false,
       "beforeJudge": false,
       "afterJudge": false,
-      "whenInjured": true
+      "whenInjured": true,
+      "lessThan2": true
     }
   },
   "nucBomb": {
@@ -56,7 +72,8 @@
       "inBattle": true,
       "beforeJudge": true,
       "afterJudge": false,
-      "whenInjured": false
+      "whenInjured": false,
+      "lessThan2": true
     }
   }
 }

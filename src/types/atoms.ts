@@ -7,6 +7,7 @@ export interface BattleAtomType {
     totalQuestions: Question[],
     currentPlayers: Student[]
     currentSpeakerID: number[],
+    reliefPerson: null | Student,
     pastParticipantsID: {[questionIndex: number]: number[]},
     isBattleStart: boolean,
     isBattleOver: boolean,
@@ -21,7 +22,6 @@ export interface BattleAtomType {
         }
     }
 }
-
 
 export interface userAtom {
     id?: number
