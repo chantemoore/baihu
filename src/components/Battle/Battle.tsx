@@ -301,9 +301,7 @@ export function Battle() {
                 <h2 className={`question ${currentQuestion && (currentQuestion.type === 'QuickResponse' ? 'red'
                     : (currentQuestion.type === 'HealthPack' ? 'green' : ''))}`}>
                     {battleData.questionIndex > -1 ? currentQuestion?.stem : "等待开始"}
-                </h2>
-                <h2 className={'answer'}>
-                    {battleData.questionIndex > -1 && battleData.isDisplayAnswer && currentQuestion?.answer}
+                    {battleData.questionIndex > -1 && battleData.isDisplayAnswer && `[答案：${currentQuestion?.answer}]`}
                 </h2>
             </div>
             <div className={"counter"}>

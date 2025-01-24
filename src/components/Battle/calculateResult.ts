@@ -5,24 +5,25 @@ import { Student, Question } from "@/types/types.ts";
 
 import { aRandomNumber } from '@/utils/random-tools.ts'
 
+const multiplier = 2
 
 const getBaseScoreDeltaTable = () => ({
     QuickResponse: {
         noBuzz: {
-            win: aRandomNumber(8, 10),
-            lose: aRandomNumber(-30, -20)
+            win: aRandomNumber(8, 10) * multiplier,
+            lose: aRandomNumber(-30, -20) * multiplier
         },
         buzz: {
-            win: aRandomNumber(12, 15),
-            lose: aRandomNumber(-25, -20)
+            win: aRandomNumber(12, 15) * multiplier,
+            lose: aRandomNumber(-25, -20) * multiplier
         }
     },
     Normal: {
-        win: aRandomNumber(5, 10),
-        lose: aRandomNumber(8, 15)
+        win: aRandomNumber(5, 10) * multiplier,
+        lose: aRandomNumber(8, 15) * multiplier
     },
     HealthPack: {
-        win: aRandomNumber(2, 5),
+        win: aRandomNumber(2, 5) * multiplier,
         lose: 0
     }
 })

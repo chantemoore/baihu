@@ -8,7 +8,7 @@ import { BattleAtomType } from '../types/atoms.ts'
 import { Class, Course, Student } from '../types/types.ts'
 
 const generalReadyTime = 5
-const quickResponseReadyTime = 8
+const quickResponseReadyTime = 6
 export const answerTime = 20
 
 // export const classDataAtom = atom<Class[]>([])
