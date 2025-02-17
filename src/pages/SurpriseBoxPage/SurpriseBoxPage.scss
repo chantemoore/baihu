@@ -1,0 +1,31 @@
+
+.surprise-box {
+  background-color: #FFB200;
+  background-image: url("../../assets/images/card_bg.png");
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+
+  .header {
+    font-size: 2em;
+    margin-bottom: 1em;
+    flex: 1
+  }
+
+  .draw {
+    height: 25%;
+    display: flex;
+    gap: 30%;
+    justify-content: center;
+
+    button {
+      &:first-child {
+        background-color: gold;
+      }
+      background-color: gold;
+      font-size: 2.2em;
+      width: 6em;
+      height: 3em;
+    }
+  }
+}

@@ -21,11 +21,15 @@
     margin: 0;
   }
 
+  h3.empty {
+    color: red;
+  }
+
   .icon {
     width: 45px;
     height: 45px;
     object-fit: contain;
-    //overflow: visible;
+    overflow: visible;
     border-radius: 50%;
     &:hover {
       cursor: pointer;

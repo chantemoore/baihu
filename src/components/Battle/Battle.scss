@@ -1,28 +1,44 @@
 .battle {
-  background: white;
+  * {
+    user-select: none;
+  }
+  background-color: #FFB200;
+  background-image: url("../../assets/images/card_bg.png");
   display: grid;
   grid-template-rows: auto 1fr;
   width: 100%;
+
+  .airdrop-area {
+    position: absolute;
+  }
 
   .questions {
     width: 100%; /* 全宽 */
     min-height: 25%;
     text-align: center;
-    padding: 10px;
-    background-color: #ccc;
-    filter: blur(10px);
-    transition: filter 0.5s ease;
+    padding: 8px;
+    background-color: #FBFFE4;
+    filter: blur(11px);
+    transition: filter 0.2s ease;
 
     h2.question {
       font-size: 2.5em;
     }
 
-    h2.red {
+    h2.QuickResponse {
       color: red;
     }
 
-    h2.green {
+    h2.HealthPack {
       color: green;
+    }
+
+    h2.General {
+      color: #1a1a1a;
+    }
+
+    h2.Trial {
+      color: deepskyblue;
     }
   }
 
@@ -34,16 +50,20 @@
     user-select: none;
     position: absolute;
     display: flex;
+    text-align: center;
     justify-content: center;
     align-items: center;
     top: 1.4em;
     left: 2em;
     border: 1px dotted black;
-    height: 5em;
+    height: 7em;
     width: 8em;
+    font-family: DigitalNumbers, sans-serif;
 
     p {
-      font-size: 4em;
+      font-size: 4.2em;
+      position: relative;
+      left: -5%;
       &.warning {
         color: red;
       }
@@ -60,10 +80,15 @@
   }
 
   .control-panel {
+    .battle-progress {
+      position: absolute;
+      right: 2em;
+    }
+    position: relative;
     display: flex;
     flex-direction: column;
     gap: 1em;
-    margin-bottom: 1em;
+    margin-bottom: 2em;
     button {
       font-size: 1.3em;
     }

@@ -2,56 +2,75 @@ import { useEffect, useState } from 'react'
 import { useAtomValue, useAtom } from 'jotai'
 import { useImmerAtom } from 'jotai-immer'
 import { useResetAtom } from 'jotai/utils'
+
+import {Progress} from 'antd';
+
 import { useAutoSave } from '@/hooks/useAutoSave.ts'
+import { matchPlayer } from '@/utils/battleTools.ts'
 
-import axios from 'axios';
-
-import { Question, Student } from "@/types/types.ts";
 import PlayerBackdrop from "../../components/PlayerBackdrop/PlayerBackdrop.tsx";
+import {AirDrop} from '@/components/AirDrop/AirDrop.tsx';
+import {AnimatedLuckyCard as LuckyCard} from '@/components/LuckyCard/LuckyCard.tsx';
+
 import {
-    classDataAtom,
-    classStudentsAtom,
+    questionIndexAtom,
+    pastParticipantsAtom,
+    totalQuestionsAtom,
     battleAtom,
-    findStudentAtom,
+    currentDayAtom,
     currentQuestionAtom,
     isJudgeFinishedAtom,
     readyTimeCounterAtom,
     isAnswerTimeOverAtom,
     isReadyTimeOverAtom,
-    isUseCacheAtom} from '@/atoms/battleAtoms.ts'
-import { answerTime } from '@/atoms/battleAtoms.ts'
-import calculateResult from './calculateResult.ts'
+    answerTimeCounterAtom,
+    airdropActiveAtom,
+    winnerAtom
+    } from '@/atoms/battleAtoms.ts'
+import { classDataAtom, classStudentsAtom, activeClassStudentsAtom, findStudentAtom } from '@/atoms/studentsAtoms.ts'
+
+import calculateResult from '../../utils/calculateResult.ts'
+import {SurpriseBox, airdropBoxes} from '@/models/Box.ts';
 
 import './Battle.scss'
-
-import mockQuestions from '../../../test/questions.json'
-
-const isBackendReady = false
-const isDev = false
 
 
 export function Battle() {
     const [battleData, setBattleData] = useImmerAtom(battleAtom)
+    const resetBattleData = useResetAtom(battleAtom)
+    const [questionIndex, setQuestionIndex] = useAtom(questionIndexAtom)
+    const [pastParticipants, setPastParticipants] = useImmerAtom(pastParticipantsAtom)
+    const [totalQuestions, setTotalQuestions] = useImmerAtom(totalQuestionsAtom)
     const [isJudgeFinished,] = useAtom(isJudgeFinishedAtom)
-    const [classStudents, setClassStudents] = useAtom(classStudentsAtom)
-    const [classData, setClassData] = useAtom(classDataAtom)
+    const [, setClassStudents] = useImmerAtom(classStudentsAtom)
+    const activeClassStudents = useAtomValue(activeClassStudentsAtom)
+    const classData = useAtomValue(classDataAtom)
+    const currentDay = useAtomValue(currentDayAtom)
     const findStudentByID = useAtomValue(findStudentAtom)
     const currentQuestion = useAtomValue(currentQuestionAtom)
     const isReadyTimeOver = useAtomValue(isReadyTimeOverAtom)
     const isAnswerTimeOver = useAtomValue(isAnswerTimeOverAtom)
     const [readyTimeCounter, setReadyTimeCounter] = useAtom(readyTimeCounterAtom)
     const resetReadyTime = useResetAtom(readyTimeCounterAtom)
-    const [counter, setCounter] = useState(isReadyTimeOver ? battleData.answerTimeCounter : readyTimeCounter)
-    const [isUseCache, ] = useAtom(isUseCacheAtom)
+    const [answerTimeCounter, setAnswerTimerCounter] = useAtom(answerTimeCounterAtom)
+    const resetAnswerTimeCounter = useResetAtom(answerTimeCounterAtom)
+    const [counter, setCounter] = useState(isReadyTimeOver ? answerTimeCounter : readyTimeCounter)
     const [isCenterBtnDisable, setIsCenterBtnDisable] = useState(false)
+    const airdropActive = useAtomValue(airdropActiveAtom)
+    const winner = useAtomValue(winnerAtom)
+
 
     useEffect(() => {
-        if(!isReadyTimeOver && battleData.isBattleStart) {
+        const { isBattleStart, isBaseScoreAltered } = battleData
+        // ready time for players to think, answering is not allowed
+        if(!isReadyTimeOver && isBattleStart) {
+            setIsCenterBtnDisable(true)
+        } else if (isBaseScoreAltered && !isBattleStart) {
             setIsCenterBtnDisable(true)
         } else {
             setIsCenterBtnDisable(false)
         }
-    }, [isReadyTimeOver, battleData.isBattleStart]);
+    }, [isReadyTimeOver, battleData.isBattleStart, battleData.isBaseScoreAltered]);
 
     // auto save class data per 1 minute
     useAutoSave('battle_cache', {
@@ -60,8 +79,8 @@ export function Battle() {
     })
 
     useEffect(() => {
-        setCounter(isReadyTimeOver ? battleData.answerTimeCounter : readyTimeCounter)
-    }, [battleData.answerTimeCounter, isReadyTimeOver, readyTimeCounter]);
+        setCounter(isReadyTimeOver ? answerTimeCounter : readyTimeCounter)
+    }, [answerTimeCounter, isReadyTimeOver, readyTimeCounter]);
 
 
     const get1RandomNum = (range: number) => {
@@ -71,44 +90,6 @@ export function Battle() {
             return 0
         }
     }
-
-    // get questions data from backend
-    useEffect(() => {
-        if (isBackendReady) {
-            axios.get('/api/questions').then(res => {
-                console.log(res.data)
-                setBattleData(draft => {
-                    draft.totalQuestions = res.data as Question[]
-                })
-            })
-        } else if(isDev) {
-            console.log('Backend is not ready, use mock data instead!')
-            setBattleData(draft => {
-                draft.totalQuestions = mockQuestions as Question[]
-            })
-        } else {
-            console.log('use import data!')
-            try {
-                const storedData = localStorage.getItem('questions')
-                if (storedData) {
-                    const parsedData = JSON.parse(storedData)
-                    setBattleData(draft => {
-                        draft.totalQuestions = parsedData
-                    })
-                } else {
-                    console.warn('No class data found in localStorage')
-                    setBattleData(draft => {
-                        draft.totalQuestions = []
-                    })
-                }
-            } catch (err) {
-                console.error('Error reading from localStorage:', err)
-                setBattleData(draft => {
-                    draft.totalQuestions = []
-                })
-            }
-        }
-        }, [isUseCache, setBattleData, setClassData]);
 
 
     // set ready time counter behavior
@@ -122,8 +103,6 @@ export function Battle() {
             }
             return () => clearInterval(timer)
         }
-        // battleData.currentPlayers, currentQuestion?.type, battleData.isBattleOver, battleData.isBattleStart, battleData.questionIndex, battleData.totalQuestions, counter, isJudgeFinished, setBattleData, currentQuestion
-        // [battleData.currentPlayers, currentQuestion, battleData.isBattleOver, battleData.isBattleStart, battleData.questionIndex, battleData.totalQuestions, counter, isJudgeFinished, setBattleData, battleData.currentSpeakerID.length]
     }, [battleData.isBattleStart, isReadyTimeOver, readyTimeCounter, setReadyTimeCounter]);
 
     useEffect(() => {
@@ -145,9 +124,7 @@ export function Battle() {
     useEffect(() => {
         if (battleData.isBattleStart && isReadyTimeOver && !battleData.isBattleOver) {
             const timer = setInterval(() => {
-                setBattleData(draft => {
-                    draft.answerTimeCounter -= 1
-                })
+                setAnswerTimerCounter(pre => pre - 1)
             }, 1000)
             // run out of answer time
             if (isAnswerTimeOver) {
@@ -163,68 +140,43 @@ export function Battle() {
 
     useEffect(() => {
         if (isJudgeFinished) {
-            calculateResult(setClassStudents, battleData, setBattleData, isJudgeFinished, currentQuestion)
+            calculateResult(setClassStudents, battleData, setBattleData, isJudgeFinished, currentQuestion, currentDay)
         }
-    }, [battleData, currentQuestion, isJudgeFinished, setBattleData, setClassStudents]);
+    }, [battleData, currentDay, currentQuestion, isJudgeFinished, setBattleData, setClassStudents]);
 
-
-    function matchPlayer() {
-        console.log('Match player...')
-        const partStudents = Object.values(battleData.pastParticipantsID).flat()
-        const candidates = classStudents.filter(stu => !partStudents.includes(stu.id))
-        const get2Random = (range: number): Set<number> =>  {
-            const indices = new Set<number>()
-            if (range) {
-                while (indices.size < 2) {
-                    const randomIndex = get1RandomNum(range)
-                    indices.add(randomIndex!)
-                }
-            }
-            return indices
-        }
-
-        let chosenStudents: Student[] = []
-        if (candidates.length === 0) {
-            chosenStudents = Array.from(get2Random(classStudents.length)).map(index => classStudents[index])
-        } else if (candidates.length === 1) {
-            chosenStudents = [candidates[0], classStudents[get1RandomNum(classStudents.length)]]
-        } else {
-            chosenStudents = Array.from(get2Random(candidates.length)).map(index => candidates[index])
-        }
-
-        setBattleData(draft => {
-            draft.currentPlayers = chosenStudents
-            chosenStudents.forEach((stu) => {
-                draft.combatData.buff[stu.id] = new Set()
+    useEffect(() => {
+        if (airdropActive && winner.length && isJudgeFinished && !battleData.airdropContent) {
+            const [winnerID, luckPoint] = [winner[0].id, winner[0].luckPoint];
+            const airdropBox = new SurpriseBox(airdropBoxes, 999);
+            const result = airdropBox.open(winnerID, setClassStudents, 1, luckPoint);
+            setBattleData(draft => {
+                draft.airdropContent = result[0][0]
+                draft.airdropDisplay.result = true
             })
-        })
-    }
+        }
+    }, [battleData.airdropContent, isJudgeFinished, airdropActive, winner, setBattleData, setClassStudents])
+
+    useEffect(() => {
+        if (isJudgeFinished && winner.length === 0 && battleData.airdropDisplay.icon) {
+            setBattleData(draft => {
+                draft.airdropDisplay.icon = false
+            })
+        }
+    }, [battleData.airdropDisplay.icon, isJudgeFinished, setBattleData, winner.length]);
+
 
     function resetBattleStatus() {
         resetReadyTime()
+        resetAnswerTimeCounter()
         // reset battle status
-        setBattleData(pre => ({
-            ...pre,
-            currentPlayers: [],
-            currentSpeakerID: [],
-            combatData: {
-                result: {},
-                buff: {}
-            },
-            answerTimeCounter: answerTime,
-            isBattleStart: false,
-            isBattleOver: false,
-            isBaseScoreAltered: false,
-            isDisplayAnswer: false
-        }))}
+        resetBattleData()
+    }
 
     function handleLastBtnClick() {
         // TODO something is wrong here, reset status when using last btn will crash whole program
         // resetBattleStatus()
-        if (battleData.questionIndex > 0) {
-            setBattleData(draft => {
-                draft.questionIndex = draft.questionIndex - 1
-            })
+        if (questionIndex > 0) {
+            setQuestionIndex(pre => pre - 1)
         }
     }
 
@@ -249,11 +201,11 @@ export function Battle() {
     }
 
     function handleNextBtnClick() {
-        const {questionIndex, isBattleStart} = battleData
+        const { isBattleStart } = battleData
         // add players in history, ensuring everyone can join the battle
         if (questionIndex >= 0 && isBattleStart) {
-            setBattleData(draft => {
-                draft.pastParticipantsID[battleData.questionIndex] = draft.currentPlayers.map(player => player.id)
+            setPastParticipants(draft => {
+                draft[questionIndex] = battleData.currentPlayers.map(player => player.id)
             })
         }
 
@@ -261,18 +213,16 @@ export function Battle() {
         resetBattleStatus()
 
         // match new players
-        matchPlayer()
+        matchPlayer(activeClassStudents, pastParticipants, setBattleData)
 
         // increase question index
         // with safeguard in isGameOver atom, don't worry index overflow
-        setBattleData(draft => {
-            draft.questionIndex += 1
-        })
+        setQuestionIndex(pre => pre + 1)
     }
 
-    function handleFlexAddBtnClick(quizType: 'QuickResponse' | 'General' | 'HealthPack') {
-        setBattleData(draft => {
-            draft.totalQuestions.splice(draft.questionIndex + 1, 0, {
+    function handleFlexAddBtnClick(quizType: 'QuickResponse' | 'General' | 'HealthPack' | 'Trial') {
+        setTotalQuestions(draft => {
+            draft.splice(questionIndex + 1, 0, {
                 "id": Math.floor(Math.random() * 1000),
                 "stem": "请听题",
                 "answer": "请听讲",
@@ -285,23 +235,37 @@ export function Battle() {
 
     // if this question is done before, get the players from pastParticipants, otherwise, match new players
     let player1, player2
-    if (Object.keys(battleData.pastParticipantsID).includes(battleData.questionIndex.toString())) {
-        [player1, player2] = battleData.pastParticipantsID[battleData.questionIndex].map(stuID => findStudentByID(stuID))
+    if (Object.keys(pastParticipants).includes(questionIndex.toString())) {
+        [player1, player2] = pastParticipants[questionIndex].map(stuID => findStudentByID(stuID))
     } else {
-        // [player1, player2] = battleData.currentPlayers.map(stuID => {
-        //     return classStudents.find(stuObj => stuObj.id === stuID.id)
-        // })
         [player1, player2] = battleData.currentPlayers.map(stuObj => findStudentByID(stuObj.id))
     }
+    const {airdropDisplay, airdropContent} = battleData
+
     console.log('battleData', battleData)
 
     return (
         <div className="battle">
+            <div className='airdrop-area'>
+                {airdropDisplay.icon && airdropActive && <AirDrop isOpen={isJudgeFinished} key={questionIndex}/>}
+                {airdropDisplay.result && airdropContent && <LuckyCard title={'幸运空投:'}
+                                                                       id={airdropContent.id}
+                                                                       rank={airdropContent.rank}
+                                                                       index={0}
+                                                                       onOk={() => setBattleData(draft => {
+                                                                           draft.airdropDisplay.result = false
+                                                                           draft.airdropDisplay.icon = false
+                                                                       })}
+                                                                       receiver={winner.map(w => w.name)}
+                                                                       luckName={airdropContent.name}
+                                                                       amount={airdropContent.amount}
+                                                                       confirmActive={true}
+                                                                       cover={airdropContent.img}/>}
+            </div>
             <div className={`questions ${battleData.isBattleStart && 'q-display'}`}>
-                <h2 className={`question ${currentQuestion && (currentQuestion.type === 'QuickResponse' ? 'red'
-                    : (currentQuestion.type === 'HealthPack' ? 'green' : ''))}`}>
-                    {battleData.questionIndex > -1 ? currentQuestion?.stem : "等待开始"}
-                    {battleData.questionIndex > -1 && battleData.isDisplayAnswer && `[答案：${currentQuestion?.answer}]`}
+                <h2 className={`question ${currentQuestion?.type}`}>
+                    {currentQuestion?.stem}
+                    {questionIndex > -1 && battleData.isDisplayAnswer && `[答案：${currentQuestion?.answer}]`}
                 </h2>
             </div>
             <div className={"counter"}>
@@ -311,27 +275,34 @@ export function Battle() {
                 <div className="player1">
                     {player1 && <PlayerBackdrop
                         player={player1}
-                        isAhead={player1 && player2 && player1.score > player2.score}/>}
+                        isAhead={player1 && player2 && player1.dailyScore[currentDay] > player2.dailyScore[currentDay]}/>}
                 </div>
                 <div className="separator">|</div>
                 <div className="player2">
                     {player2 && <PlayerBackdrop
                         player={player2}
-                        isAhead={player1 && player2 && player1.score < player2.score}/>}
+                        isAhead={player1 && player2 && player1.dailyScore[currentDay] < player2.dailyScore[currentDay]}/>}
                 </div>
             </div>
             <div className={"control-panel"}>
+                <Progress
+                    className={'battle-progress'}
+                    trailColor={'black'}
+                    strokeWidth={10}
+                    strokeColor={'green'}
+                    percent={Math.round((questionIndex / totalQuestions.length)  * 100)} type="circle" />
                 <div className={'flexible-question-add'}>
-                    <button onClick={() => handleFlexAddBtnClick('General')}>One General Quzz</button>
-                    <button onClick={() => handleFlexAddBtnClick('HealthPack')}>One HealthPack Quzz</button>
-                    <button onClick={() => handleFlexAddBtnClick('QuickResponse')}>One QuickResponse Quzz</button>
+                    <button onClick={() => handleFlexAddBtnClick('General')}>One General Quiz</button>
+                    <button onClick={() => handleFlexAddBtnClick('HealthPack')}>One HealthPack Quiz</button>
+                    <button onClick={() => handleFlexAddBtnClick('QuickResponse')}>One QuickResponse Quiz</button>
+                    <button onClick={() => handleFlexAddBtnClick('Trial')}>One Trial Quiz</button>
                 </div>
                 <div className={'change-question'}>
-                    <button>
+                    <button onClick={() => setQuestionIndex(-1)}>
                         首页
                     </button>
                     <button
-                        disabled={battleData.questionIndex <= 0}
+                        disabled={questionIndex <= 0}
                         onClick={handleLastBtnClick}
                         className={"prev"}>
                         上一题
@@ -348,11 +319,7 @@ export function Battle() {
                         下一题
                     </button>
                     <button
-                        onClick={() => {
-                            setBattleData((draft) => {
-                                draft.questionIndex = draft.totalQuestions.length + 1
-                            })
-                        }}>
+                        onClick={() => setQuestionIndex(totalQuestions.length + 1)}>
                         结束
                     </button>
                 </div>

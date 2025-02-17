@@ -1,12 +1,21 @@
 export interface Skill {
     name: string
     zh_name: string
+    price: number
     useTime: {
-        [key: string]: boolean
+        beforeBattle: boolean,
+        inBattle: boolean,
+        beforeJudge: boolean,
+        afterJudge: boolean,
+        whenInjured: boolean,
+        lessThan2: boolean,
+        atQuickResponse: boolean
     },
     isDisposable: boolean
     effectIntro: string
     icon: string
+    isAvailable: boolean
+    comment?: string
 }
 
 export interface Assets {
@@ -18,55 +27,106 @@ export interface SkillSlot {
     temporary: string[]
 }
 
-export interface Student {
+export interface Hero {
     id: number
     name: string
-    username: string
-    fish: number
-    score: number
-    assets: Assets
-    skillSlot: SkillSlot
-    avatar?: string
-    bgImg?: string
+    en_name: string
+    level: number
+    fair: () => void
 }
 
+export type QuestionType = "HealthPack" | "QuickResponse" | "General" | "Trial";
 export interface Question {
     id: number
     stem: string
     options?: string[]
     answer: string
-    type: "HealthPack" | "QuickResponse" | "General"
+    type: QuestionType
     // type: string
     difficulty?: string
     tags?: string[]
     comment?: string
 }
 
-export interface Course {
-    id: number
-    name: string
-}
-
 export interface Class {
-    id: number
     name: string
-    courses: Course[]
     students: Student[]
 }
 
-export interface ClassImportDataType {
+export interface Student {
     id: number
     name: string
     username: string
-    fish: number
-    score: number
-    reliefTroop: number
-    duck: number
-    grenade: number
-    nucBomb: number
-    medKit: number
-    goldBell: number
-    bg: boolean
-    avatar: boolean
+    assets: Assets
+    avatar?: string
+    bgImg?: string,
+    dailyScore: {
+        [key: string]: number
+    },
+    luckPoint: number
     isActive: boolean
+    isPresent: boolean
+}
+
+export type PraiseLevels = 'level1' | 'level2' | 'level3' | 'level4' | 'homework';
+
+export type PraiseLevelConfig = {
+    [K in PraiseLevels]: number[];
+};
+
+type QuickResponseRules = {
+    noBuzz: {
+        win: number[],
+        lose: number[]
+    },
+    buzz: {
+        win: number[],
+        lose: number[]
+    }
+}
+
+type OtherQuestionRules = {
+    win: number[],
+    lose: number | number[]
+}
+
+type GameRules = {
+    QuickResponse: QuickResponseRules,
+    Normal: OtherQuestionRules,
+    HealthPack: OtherQuestionRules,
+    Trial: OtherQuestionRules
+}
+
+export interface BattleConfigType {
+    isDev: boolean
+    scoreMultiplier: number
+    possibility: {
+        airdrop: number;
+    };
+    counter: {
+        "readyTime": {
+            "general": number,
+            "quickResponse": number
+        },
+        "answerTime": number
+    }
+    scoreConfig: {
+        praiseLevel: PraiseLevelConfig
+        gameRules: GameRules
+    }
+    cacheControl: {
+        classDataAtomKey: string;
+        classDataAtomCacheKey: string;
+    }
+}
+
+export interface Commodity {
+    id: string
+    name: string
+    amount: number
+    price: number
+    intro?: string
+    type: 'Skill'
+    extra?: string
+    cover?: string
 }

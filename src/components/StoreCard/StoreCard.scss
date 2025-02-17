@@ -1,0 +1,43 @@
+.store-card {
+  padding: 1em;
+  display: flex;
+  flex-direction: column;
+
+  .ant-card-meta > .ant-card-meta-detail > .ant-card-meta-title {
+    font-size: 2em;
+  }
+
+  .ant-card-body {
+    flex: 1;
+  }
+
+
+
+  .ant-card-actions {
+
+    li {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      p {
+        font-size: 1.3em;
+        margin: 1em;
+      }
+    }
+
+
+  }
+
+  .ant-card-cover {
+    margin: 1em 0;
+    display: flex;
+    justify-content: center;
+
+    img {
+      width: 50%;
+      margin: auto;
+    }
+  }
+
+}

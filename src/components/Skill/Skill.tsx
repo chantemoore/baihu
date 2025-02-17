@@ -1,12 +1,21 @@
+import { type Dispatch, type SetStateAction } from 'react';
 import { useState, useEffect } from 'react'
 import { useAtom, useAtomValue } from 'jotai'
 import { useImmerAtom } from 'jotai-immer'
 
-import { battleAtom, classStudentsAtom, findStudentAtom, isJudgeFinishedAtom } from '@/atoms/battleAtoms.ts'
+import {battleAtom, isJudgeFinishedAtom, currentQuestionAtom, questionIndexAtom} from '@/atoms/battleAtoms.ts';
+import {classStudentsAtom, findStudentAtom} from '@/atoms/studentsAtoms.ts'
 import { useSkillRules } from './skillRules.ts'
-import skillDict from '../../data/skills.json';
+
+import { Skills } from '@/models/Skill.ts'
+import {SkillIcon} from './SkillIcon.tsx';
+import { changeSkillQuantityByID } from '@/utils/studentTools.ts'
+import {playAudio} from '@/utils/soundTools.ts';
+
+import { type Skill } from '@/types/types.ts'
 
 import './Skills.scss'
+import conjureSound from '@/assets/sounds/conjureSound.mp3';
 
 
 
@@ -14,71 +23,94 @@ interface SkillProps {
     userID: number
     name: string
     quantity: number,
-    setHasRelief: React.Dispatch<React.SetStateAction<boolean>>
+    setHasRelief: Dispatch<SetStateAction<boolean>>
 }
 
-interface skills {
-    [key: string] : {
-        zh_name: string
-        useTime: {
-            [key: string]: boolean
-        }
-    }
+
+interface BattleContext {
+    stage: 'before' | 'in' | 'beforeJudge' | 'afterJudge'
+    playerCount: number
+    isQuickResponse: boolean
+    isInjured: boolean,
+    isSpeaker: boolean
 }
 
-const skillIcons: {[key: string]: string} = {
-    duck: 'src/assets/icons/run.svg',
-    grenade: 'src/assets/icons/grenade.svg',
-    reliefTroop: 'src/assets/icons/cry.png',
-    nucBomb: 'src/assets/icons/nucBomb.png',
-    medKit: 'src/assets/icons/medKit.png',
-    goldBell: 'src/assets/icons/bell.svg'
+const checkSkillAvailability = (skill: Skill, context: BattleContext): boolean => {
+    const conditions = [
+        { check: context.playerCount <= 2, required: skill.useTime.lessThan2 },
+        { check: context.isQuickResponse, required: skill.useTime.atQuickResponse },
+        { check: skill.useTime.whenInjured, required: context.isInjured && context.isSpeaker},
+        { check: context.stage === 'before', required: skill.useTime.beforeBattle },
+        { check: context.stage === 'in', required: skill.useTime.inBattle && context.isSpeaker },
+        { check: context.stage === 'beforeJudge', required: skill.useTime.beforeJudge },
+        { check: context.stage === 'afterJudge', required: skill.useTime.afterJudge }
+    ];
+
+
+    return conditions
+        .filter(({ check }) => check)
+        .every(({ required }) => required);
 }
 
 
 export default function Skill({userID, name, quantity, setHasRelief}: SkillProps) {
-    const ImgUrl = skillIcons[name]
     const [battleData, setBattleData] = useImmerAtom(battleAtom)
     const isJudgeFinished = useAtomValue(isJudgeFinishedAtom)
     const [classStudentsData, setStudentsData] = useImmerAtom(classStudentsAtom)
-    const [findStudentByID] = useAtom(findStudentAtom)
     const [isDisabled, setIsDisabled] = useState(true)
     const [isUsed, setIsUsed] = useState(false)
-    const Skills: skills = skillDict
-    const {zh_name, useTime}  = Skills[name]
-
+    const currentQuestion = useAtomValue(currentQuestionAtom)
+    const [questionIndex, ] = useAtom(questionIndexAtom)
     const skillRules = useSkillRules()
+
+    const { useTime }  = Skills[name]
+
 
     // clear skill isUsed state when question change
     useEffect(() => {
         setIsUsed(false)
-    }, [battleData.questionIndex]);
+    }, [questionIndex]);
 
     useEffect(() => {
         // skills of no stock or used in the round are banned.
-        if (quantity === 0 || isUsed)  {
-            console.log(`No account! or ${name} is used once`)
+        if (quantity === 0 || isUsed || currentQuestion?.type === 'Trial')  {
             setIsDisabled(true)
         } else {
-            if(battleData.currentSpeakerID.includes(userID)) {
-                if(!battleData.isBattleStart) {
-                    setIsDisabled(!useTime.beforeBattle)
-                } else if(battleData.isBattleStart && !battleData.isBattleOver) {
-                    setIsDisabled(!useTime.inBattle)
-                } else if(battleData.isBattleOver && !isJudgeFinished) {
-                    setIsDisabled(!useTime.beforeJudge)
-                } else if(battleData.isBattleOver && isJudgeFinished) {
-                    setIsDisabled(!useTime.afterJudge)
-                } else if(classStudentsData.length <= 2) {
-                    setIsDisabled(!useTime.lessThan2)
-                } else {
-                    setIsDisabled(true)
-                }
-            }
-            if(isJudgeFinished && battleData.combatData.result?.[userID] === false) {
-                setIsDisabled(!useTime.whenInjured)
+            if (!battleData.isBattleStart) {
+                setIsDisabled(!checkSkillAvailability(Skills[name], {
+                    playerCount: classStudentsData.filter(stu => stu.isActive).length,
+                    isInjured: isJudgeFinished && !battleData.combatData.result[userID],
+                    isQuickResponse: currentQuestion?.type === 'QuickResponse',
+                    isSpeaker: battleData.currentSpeakerID.includes(userID),
+                    stage: 'before'
+                }))
+            } else if (battleData.isBattleStart && !battleData.isBattleOver) {
+                setIsDisabled(!checkSkillAvailability(Skills[name], {
+                    playerCount: classStudentsData.filter(stu => stu.isActive).length,
+                    isInjured: isJudgeFinished && !battleData.combatData.result[userID],
+                    isQuickResponse: currentQuestion?.type === 'QuickResponse',
+                    isSpeaker: battleData.currentSpeakerID.includes(userID),
+                    stage: 'in'
+                }))
+            } else if (battleData.isBattleOver && !isJudgeFinished) {
+                setIsDisabled(!checkSkillAvailability(Skills[name], {
+                    playerCount: classStudentsData.filter(stu => stu.isActive).length,
+                    isInjured: isJudgeFinished && !battleData.combatData.result[userID],
+                    isQuickResponse: currentQuestion?.type === 'QuickResponse',
+                    isSpeaker: battleData.currentSpeakerID.includes(userID),
+                    stage: 'beforeJudge'
+                }))
+            } else if (isJudgeFinished) {
+                setIsDisabled(!checkSkillAvailability(Skills[name], {
+                    playerCount: classStudentsData.filter(stu => stu.isActive).length,
+                    isInjured: isJudgeFinished && !battleData.combatData.result[userID],
+                    isQuickResponse: currentQuestion?.type === 'QuickResponse',
+                    isSpeaker: battleData.currentSpeakerID.includes(userID),
+                    stage: 'afterJudge'
+                }))
             }
         }
+
 
         // make sure no using of skills of similar effects per user
         const similarSkills = ['duck', 'grenade']
@@ -101,41 +133,27 @@ export default function Skill({userID, name, quantity, setHasRelief}: SkillProps
             setIsDisabled(true)
         }
 
-    }, [battleData.combatData.buff, battleData.combatData.result, battleData.currentPlayers, battleData.currentSpeakerID, battleData.isBattleOver, battleData.isBattleStart, isJudgeFinished, isUsed, name, quantity, useTime.afterJudge, useTime.beforeBattle, useTime.beforeJudge, useTime.inBattle, useTime.whenInjured, userID]);
+    }, [battleData.combatData.buff, battleData.combatData.result, battleData.currentPlayers, battleData.currentSpeakerID, battleData.isBattleOver, battleData.isBattleStart, classStudentsData.length, currentQuestion?.type, isJudgeFinished, isUsed, name, quantity, useTime.afterJudge, useTime.atQuickResponse, useTime.beforeBattle, useTime.beforeJudge, useTime.inBattle, useTime.lessThan2, useTime.whenInjured, userID]);
 
     // handle skills' usage
     function handleSkillIconClick() {
-        const skillQuantity = findStudentByID(userID)?.assets[name]
-        let futureQuantity: number
-
-        function changeSkillQuantity(offset: number) {
-            futureQuantity = skillQuantity + offset
-            if (futureQuantity >=0) {
-                setStudentsData(draft => {
-                    const studentIndex = draft.findIndex(stu => stu.id === userID)
-                    if (studentIndex !== -1) {
-                        draft[studentIndex].assets[name] = futureQuantity
-                    }
-                })
-            }
-            return futureQuantity >= 0
-        }
 
         // make sure one skill can just be used only once in one round
         // change skill quantity
         if (!isDisabled) {
+            // play sound
+            playAudio(conjureSound).then()
             let changeResult: boolean
             if (Object.values(battleData.combatData.buff).some(buffset => buffset.has('duck')) && name === 'duck') {
-                changeResult = changeSkillQuantity(-2)
+                changeResult = changeSkillQuantityByID(-2, name, setStudentsData, userID)
             } else {
-                changeResult = changeSkillQuantity(-1)
+                changeResult = changeSkillQuantityByID(-1, name, setStudentsData, userID)
             }
             if (changeResult) {
                 setIsUsed(true)
                 setBattleData(draft => {
                     draft.combatData.buff[userID].add(name)
                 })
-                setIsDisabled(true)
 
                 // add skill using history in buff pool
 
@@ -156,17 +174,17 @@ export default function Skill({userID, name, quantity, setHasRelief}: SkillProps
                     skillRules.reliefTroop()
                     setHasRelief(true)
                 }
+                if (name === 'spinner') {
+                    skillRules.spinner()
+                }
+                if (name === 'double') {
+                    skillRules.double()
+                }
             }
         } // NO code after this closed curly bracket!
     }
 
     return (
-        <div className={"skill"}>
-            <h2 className={"skill-name"}>{zh_name}</h2>
-            <img
-                onClick={handleSkillIconClick}
-                className={`icon ${isDisabled && 'disabled'}`} src={ImgUrl} alt={`${name} icon`}/>
-            <h3>{quantity}</h3>
-        </div>
+        <SkillIcon name={name} onClick={handleSkillIconClick} isDisPlayZh={true} isDisabled={isDisabled} quantity={quantity}/>
     )
 }

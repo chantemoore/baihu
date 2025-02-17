@@ -1,0 +1,51 @@
+{
+  "isDev": true,
+  "scoreMultiplier": 1,
+  "possibility": {
+    "airdrop": 0.08
+  },
+  "counter": {
+    "readyTime": {
+      "general": 5,
+      "quickResponse": 6
+    },
+    "answerTime": 20
+  },
+  "scoreConfig": {
+    "praiseLevel": {
+      "level1": [2, 4],
+      "level2": [4, 6],
+      "level3": [8, 12],
+      "level4": [9, 20],
+      "homework": [35, 40]
+    },
+    "gameRules": {
+      "QuickResponse": {
+        "noBuzz": {
+          "win": [8, 10],
+          "lose": [-30, -15]
+        },
+        "buzz": {
+          "win": [10, 15],
+          "lose": [-25, -15]
+        }
+      },
+      "Normal": {
+        "win": [5, 10],
+        "lose": [-15, -5]
+      },
+      "HealthPack": {
+        "win": [2, 8],
+        "lose": 0
+      },
+      "Trial": {
+        "win": [5, 10],
+        "lose": [-15, -5]
+      }
+    }
+  },
+  "cacheControl": {
+    "classDataAtomKey": "classData",
+    "classDataAtomCacheKey": "classData_cache"
+  }
+}

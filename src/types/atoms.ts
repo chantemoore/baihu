@@ -1,18 +1,21 @@
-import { Student, Question } from './types'
+import { Student } from './types'
+import { BoxItem } from './box'
 
 export interface BattleAtomType {
-    questionIndex: number,
     noBuzz: boolean,
-    answerTimeCounter: number,
-    totalQuestions: Question[],
     currentPlayers: Student[]
     currentSpeakerID: number[],
     reliefPerson: null | Student,
-    pastParticipantsID: {[questionIndex: number]: number[]},
     isBattleStart: boolean,
     isBattleOver: boolean,
     isBaseScoreAltered: boolean,
-    isDisplayAnswer: boolean
+    isDisplayAnswer: boolean,
+    airdropContent: BoxItem | null,
+    airdropDisplay: {
+        icon:  boolean,
+        result: boolean
+    }
+    multiplier: number
     combatData: {
         result: {
             [key: number]: boolean | null

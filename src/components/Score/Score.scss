@@ -1,0 +1,13 @@
+@font-face {
+  font-family: DigitalNumbers;
+  src: url("../../../src/assets/fonts/DigitalNumbers-Regular.ttf");
+}
+
+span.score {
+  margin: 0;
+  font-family: DigitalNumbers, sans-serif;
+  font-size: 6em;
+  &.advantage {
+    font-size: 8em;
+  }
+}

@@ -1,0 +1,174 @@
+{
+  "duck": {
+    "zh_name": "闪避",
+    "price": 2,
+    "useTime": {
+      "beforeBattle": false,
+      "inBattle": true,
+      "beforeJudge": false,
+      "afterJudge": false,
+      "whenInjured": false,
+      "lessThan2": true,
+      "atQuickResponse": false
+    },
+    "isDisposable": false,
+    "effectIntro": "除抢答题外，在答题前发动，可将答题机会转让给另一人，对方可使用2次闪避将答题权让回，此后双方闪避均禁用",
+    "icon": "src/assets/icons/run.svg",
+    "isAvailable": true
+  },
+  "spinner": {
+    "zh_name": "转盘",
+    "price": 1,
+    "useTime": {
+      "beforeBattle": true,
+      "inBattle": true,
+      "beforeJudge": false,
+      "afterJudge": false,
+      "whenInjured": false,
+      "lessThan2": true,
+      "atQuickResponse": true
+    },
+    "isDisposable": false,
+    "effectIntro": "随机换一道题目，题目类型不变",
+    "icon": "src/assets/icons/spinner.png",
+    "isAvailable": true
+  },
+  "reliefTroop": {
+    "zh_name": "援军",
+    "price": 1,
+    "useTime": {
+      "beforeBattle": true,
+      "inBattle": true,
+      "beforeJudge": false,
+      "afterJudge": false,
+      "whenInjured": false,
+      "lessThan2": false,
+      "atQuickResponse": true
+    },
+    "isDisposable": false,
+    "effectIntro": "让指定援军代替自己回答此题，援军回答与本人回答具有同等效力",
+    "icon": "src/assets/icons/cry.png",
+    "isAvailable": true
+  },
+  "grenade": {
+    "zh_name": "手榴弹",
+    "price": 3,
+    "useTime": {
+      "beforeBattle": false,
+      "inBattle": true,
+      "beforeJudge": false,
+      "afterJudge": false,
+      "whenInjured": false,
+      "lessThan2": true,
+      "atQuickResponse": true
+    },
+    "isDisposable": true,
+    "effectIntro": "除抢答题外，在答题前发动，将答题机会转让给对方，对方回答完毕后需要判断对方是否回答正确，若双方都是正确答案，正常计算得分；若发动者正确，对方错误，对方额外扣5分；若发动者错误，对方正确，发动者额外扣5分；若双方都是错误答案，双方均额外扣20分",
+    "icon": "src/assets/icons/grenade.png",
+    "isAvailable": true
+  },
+  "double": {
+    "zh_name": "加倍",
+    "price": 2,
+    "useTime": {
+      "beforeBattle": true,
+      "inBattle": false,
+      "beforeJudge": false,
+      "afterJudge": false,
+      "whenInjured": false,
+      "lessThan2": true,
+      "atQuickResponse": true
+    },
+    "isDisposable": true,
+    "effectIntro": "在题目出来前发动，分数变动加倍",
+    "icon": "src/assets/icons/double.png",
+    "isAvailable": true
+  },
+  "goldBell": {
+    "zh_name": "金钟罩",
+    "price": 3,
+    "useTime": {
+      "beforeBattle": false,
+      "inBattle": true,
+      "beforeJudge": true,
+      "afterJudge": false,
+      "whenInjured": false,
+      "lessThan2": true,
+      "atQuickResponse": true
+    },
+    "isDisposable": false,
+    "effectIntro": "在答题结束前发动，如果回答错误，免除此次基础扣分，如果回答正确，无任何效果",
+    "icon": "src/assets/icons/bell.svg",
+    "isAvailable": true
+  },
+  "medKit": {
+    "zh_name": "血包",
+    "price": 2,
+    "useTime": {
+      "beforeBattle": false,
+      "inBattle": false,
+      "beforeJudge": false,
+      "afterJudge": true,
+      "whenInjured": true,
+      "lessThan2": true,
+      "atQuickResponse": true
+    },
+    "isDisposable": true,
+    "effectIntro": "80%的概率恢复5-8分，20%概率恢复9-10分，5%概率恢复11-15分，1%概率没有效果",
+    "icon": "src/assets/icons/medKit.png",
+    "isAvailable": true
+  },
+  "nucBomb": {
+    "zh_name": "原子弹",
+    "price": 12,
+    "useTime": {
+      "beforeBattle": true,
+      "inBattle": true,
+      "beforeJudge": true,
+      "afterJudge": false,
+      "whenInjured": false,
+      "lessThan2": true,
+      "atQuickResponse": true
+    },
+    "isDisposable": true,
+    "effectIntro": "强制将此题回答权交给虎氏喵，全体人员扣60分，如果虎氏喵回答正确，无任何效果，若回答错误，每人1鱼干",
+    "icon": "src/assets/icons/nucBomb.png",
+    "isAvailable": true
+  },
+  "bunker": {
+    "zh_name": "掩体",
+    "price": 2,
+    "useTime": {
+      "beforeBattle": false,
+      "inBattle": false,
+      "beforeJudge": true,
+      "afterJudge": false,
+      "whenInjured": true,
+      "lessThan2": true,
+      "atQuickResponse": true
+    },
+    "isDisposable": true,
+    "effectIntro": "原子弹伤害减30",
+    "icon": "src/assets/icons/biohazard.png",
+    "isAvailable": false,
+    "comment": "破坏公平性，和原子弹的设计理念冲突，而且站在技术角度，不在当前回合出场的玩家且拥有该技能，该如何发动？"
+  },
+  "slap": {
+    "zh_name": "巴掌",
+    "price": 2,
+    "useTime": {
+      "beforeBattle": true,
+      "inBattle": false,
+      "beforeJudge": true,
+      "afterJudge": false,
+      "whenInjured": false,
+      "lessThan2": false,
+      "atQuickResponse": true
+    },
+    "isDisposable": true,
+    "effectIntro": "随机换一个对手，如果还是他，对方加10分",
+    "icon": "",
+    "isAvailable": false,
+    "comment": "细节不全，并且换对手没有那么多需求，无法给游戏带来足够趣味性和竞技性，因为这是个人战，而非集体战"
+  }
+}

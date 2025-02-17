@@ -1,91 +1,79 @@
 import { atom } from 'jotai'
-import { atomWithDefault } from 'jotai/utils'
-
-import { produce } from 'immer'
-import type { WritableDraft } from 'immer'
+import { atomWithDefault, atomWithStorage, atomWithReset } from 'jotai/utils'
 
 import { BattleAtomType } from '../types/atoms.ts'
-import { Class, Course, Student } from '../types/types.ts'
+import { Question, SkillSlot } from '../types/types.ts'
+import BattleConfig from '@/../battleConfig.json'
+import {Skills} from '@/models/Skill.ts'
+import { getMonthDay } from '@/utils/dateTools.ts'
 
-const generalReadyTime = 5
-const quickResponseReadyTime = 6
-export const answerTime = 20
+const generalReadyTime = !BattleConfig.isDev ? BattleConfig.counter.readyTime.general : 1
+const quickResponseReadyTime = !BattleConfig.isDev ? BattleConfig.counter.readyTime.quickResponse : 1
+export const answerTime = BattleConfig.counter.answerTime
 
-// export const classDataAtom = atom<Class[]>([])
-export const classDataAtom = atom<Class[]>([])
-
-export const classCourseSelectedAtom  = atom<{
-    selectComplete: boolean
-    importComplete: boolean
-    classID: Class['id'] | null
-    courseID: Course['id'] | null
-}>({
-    selectComplete: false,
-    importComplete: false,
-    classID: null,
-    courseID: null
-})
-
-export const availableCoursesAtom = atom((get) => {
-    const classData = get(classDataAtom)
-    const classCourseSelected = get(classCourseSelectedAtom)
-    const selectedClass = classData.find((classObj) => classObj.id === classCourseSelected.classID)
-
-    return selectedClass?.courses || []
+export const skillSlotAtom = atom<SkillSlot>({
+    permanent: Object.keys(Skills).filter(skillName=> !Skills[skillName].isDisposable && Skills[skillName].isAvailable),
+    temporary: Object.keys(Skills).filter(skillName=> Skills[skillName].isDisposable && Skills[skillName].isAvailable)
 })
 
 
-export const classStudentsAtom = atom(
-    (get) => {
-    const classData = get(classDataAtom)
-    const classSelected = get(classCourseSelectedAtom)
-    const studentsInClass = classData.find((classObj) => classObj.id === classSelected.classID)
-    return studentsInClass?.students || []
-},
-    (get, set, updater: (draft: WritableDraft<Student[]>) => void) => {
-        const classData = get(classDataAtom)
-        const classSelected = get(classCourseSelectedAtom)
-        const newClassData = classData.map(classObj => {
-            if (classObj.id === classSelected.classID) {
-                return {...classObj, students: produce(classObj.students, updater)}
-            }
-            return classObj
-        })
-        set(classDataAtom, newClassData)
-        // localStorage.setItem('classDataAsync', JSON.stringify(newClassData))
-
-})
-
-export const findStudentAtom = atom((get) => (stuID: number) => {
-    const classData = get(classDataAtom)
-    for (const classItem of classData) {
-        const student = classItem.students.find((s) => s.id === stuID)
-        if (student) {
-            return student
-        }
-    }
-    return {} as Student
-})
-
-export const battleAtom = atom<BattleAtomType>({
-    questionIndex: -1,
+export const battleAtom = atomWithReset<BattleAtomType>({
     noBuzz: false,
-    answerTimeCounter: answerTime,
-    totalQuestions: [],
     currentPlayers: [],
-    // main speaker is at thr head
+    // main speaker is at the head
     currentSpeakerID: [],
-    pastParticipantsID: {},
     reliefPerson: null,
     isBattleStart: false,
     isBattleOver: false,
     isDisplayAnswer: false,
+    airdropContent: null,
+    airdropDisplay: {
+        icon: true,
+        result: false
+    },
     isBaseScoreAltered: false,
+    multiplier: 1,
     combatData: {
         result: {},
         buff: {}
     }
 })
+
+export const winnerAtom = atom((get) => {
+    const battleData = get(battleAtom)
+    return battleData.currentPlayers.filter(player => battleData.combatData.result[player.id])
+})
+
+export const answerTimeCounterAtom = atomWithReset(answerTime)
+
+const _currentDateAtom = atom((() => new Date())())
+
+
+
+export const currentDayAtom = atom((get) => {
+    const today = get(_currentDateAtom)
+    return getMonthDay(today)
+})
+
+export const tomorrowDateAtom = atom((get) => {
+    const today = get(_currentDateAtom)
+    const tomorrow = new Date(today)
+    tomorrow.setDate(today.getDate() + 1)
+    return getMonthDay(tomorrow)
+})
+export const questionIndexAtom = atom(-1)
+
+export const airdropActiveAtom = atom((get) => {
+    const currentQuestionIndex = get(questionIndexAtom)
+    const currentQuestion= get(currentQuestionAtom)
+    return currentQuestionIndex >= -1 && (Math.random() < BattleConfig.possibility.airdrop || currentQuestion?.type === 'Trial')
+})
+
+export const pastParticipantsAtom = atom<{[key: number]: number[]}>({})
+
+export const totalQuestionsAtom = atomWithStorage<Question[]>('questions', [])
+
+export const questionsNameAtom = atomWithStorage('questions_name', '')
 
 export const readyTimeCounterAtom = atomWithDefault((get) => {
     const currentQuestion = get(currentQuestionAtom)
@@ -98,13 +86,13 @@ export const isReadyTimeOverAtom = atom((get) => {
 })
 
 export const isAnswerTimeOverAtom = atom((get) => {
-    const battleData = get(battleAtom)
-    return battleData.answerTimeCounter <= 0
+    const answerTimerCounter = get(answerTimeCounterAtom)
+    return answerTimerCounter <= 0
 })
 
 export const currentQuestionAtom = atom((get) => {
-    const battleData = get(battleAtom)
-    const {questionIndex, totalQuestions} = battleData
+    const totalQuestions = get(totalQuestionsAtom)
+    const questionIndex = get(questionIndexAtom)
     if (questionIndex >=0 && questionIndex <= totalQuestions.length) {
         return totalQuestions.length ? totalQuestions[questionIndex] : null
     } else {
@@ -120,9 +108,9 @@ export const isJudgeFinishedAtom = atom((get) => {
 })
 
 export const isGameOverAtom = atom((get) => {
-    const battleData = get(battleAtom)
-    const {totalQuestions: {length}, questionIndex} = battleData
+    const questionIndex = get(questionIndexAtom)
+    const length = get(totalQuestionsAtom).length
     return length <= questionIndex
 })
 
-export const isUseCacheAtom = atom(false)
+

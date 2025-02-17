@@ -1,0 +1,39 @@
+.fish-store {
+  width: 100%;
+  padding: 1em;
+  background: pink;
+  height: fit-content;
+
+  .header {
+    font-size: 2em;
+    margin-bottom: 1em;
+  }
+
+  .showcase {
+    //display: flex;
+    //flex-direction: row;
+    //flex-wrap: wrap;
+    //gap: 1em;
+    //justify-content: space-between;;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);  // 200px 替换为你想要的宽度
+    gap: 1em;
+  }
+
+
+  .cashier {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+
+    .checkout-btn {
+      margin-left: auto;
+      margin-right: 2em;
+      font-size: 1.2em;
+      padding: 1.5em;
+      background: #155E95;
+      color: #f9f9f9;
+    }
+  }
+}

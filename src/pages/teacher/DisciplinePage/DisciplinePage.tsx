@@ -1,24 +1,25 @@
-import { useEffect } from 'react'
 
-import { useAtomValue, useSetAtom } from 'jotai'
+import { useAtomValue } from 'jotai'
 import { useImmerAtom } from 'jotai-immer'
 
-import { classStudentsAtom, classDataAtom } from '@/atoms/battleAtoms.ts'
+import { classStudentsAtom} from '@/atoms/studentsAtoms.ts'
 
 import DisciplineCard from '@/components/DisciplineCard/DisciplineCard.tsx'
+import './DisciplinePage.scss'
 
 export default function DisciplinePage() {
     const students = useAtomValue(classStudentsAtom)
-    const [studentsData, setStudentsData] = useImmerAtom(classStudentsAtom)
+    const [, setStudentsData] = useImmerAtom(classStudentsAtom)
 
-    console.log('stu', students)
-    console.log('stud', studentsData)
     return (
-        <>
-            {studentsData.map(stuObj => <DisciplineCard
-                student={stuObj}
-                setStudentsData={setStudentsData}
-                key={stuObj.id}/>)}
-        </>
+        <div className={'DisciplinePage'}>
+            {[...students].sort((a, b) => {
+                if (a.isPresent === b.isPresent) return 0;
+                return a.isPresent ? -1 : 1
+            }).map(stuObj =>
+                <DisciplineCard
+                student={stuObj} setStudentsData={setStudentsData} key={stuObj.id}/>)
+            }
+        </div>
     )
 }

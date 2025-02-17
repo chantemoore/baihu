@@ -1,0 +1,115 @@
+.battle-home-page {
+  width: 100%;
+  padding: 2em;
+  background-image: url("../../../../../src/assets/images/battle_cover.jpg");
+  background-size: cover;
+  background-repeat: no-repeat;
+
+  * {
+    user-select: none;
+  }
+
+  .alert {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    margin-bottom: 1em;
+
+    .alert-card {
+
+      .ant-alert-content {
+        text-align: left;
+      }
+
+    }
+
+  }
+
+  div.file-upload, div.control-btn, div.alert {
+    margin-left: 2em;
+  }
+
+  div.data {
+    //border: 1px solid #eec8a0;
+    font-size: 1.2em;
+    display: flex;
+    align-items: center;
+    gap: 2em;
+
+    div.file {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+
+      div.file-upload {
+        color: #D27740;
+        //border: 1px solid #77B254;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        gap: .8em;
+
+        h3 {
+          margin: .2em;
+        }
+
+      }
+
+    }
+
+    div.upload-confirm-btn {
+      display: flex;
+      align-items: center;
+      gap: .5em;
+      color: #77B254;
+
+      button {
+        background: #77B254;
+        border: none;
+      }
+
+    }
+
+  }
+
+  div.control-btn {
+    //border: 1px solid black;
+    position: absolute;
+    bottom: 3%;
+
+    display: flex;
+    flex-direction: row;
+    gap: 1em;
+    width: 180px;
+    align-items: center;
+
+    .icon {
+      width: 60px;
+      border: 1px solid #f9f9f9;
+      border-radius: 50%;
+      background: white;
+      &:hover {
+      cursor: pointer;
+    }
+    }
+
+    button {
+      width: 90%;
+      height: 4.5em;
+      font-size: 1.1em;
+    }
+  }
+
+
+  .start-icon {
+    width: 100px;
+    position: absolute;
+    bottom: 3%;
+    right: 5%;
+    &:hover {
+      cursor: pointer;
+    }
+  }
+
+}

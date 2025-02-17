@@ -1,0 +1,136 @@
+// 单卡片的背景和容器样式
+.lucky-card-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .lucky-card {
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+
+    .lucky-card-content {
+      position: absolute;
+      left: 50%;
+      width: 300px;
+      transform: translateX(-50%);
+    }
+  }
+}
+
+// 多卡片样式
+.lucky-cards-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: scroll;
+}
+
+.lucky-cards {
+  width: 100%;
+  //max-width: 1500px;
+  margin: 0 auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+
+  .cards-container {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    padding: 20px;
+  }
+
+  .card-wrapper {
+    width: 300px;
+    flex-shrink: 0;
+  }
+
+  .confirm-all-btn {
+    margin-top: 20px;
+    background: #74A74F;
+    color: white;
+    font-size: 1.5em;
+    padding: 12px 40px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+
+    &:hover {
+      background: #5f8b3f;
+    }
+  }
+}
+
+// 通用卡片样式
+.ant-card {
+  &.Legendary {
+    background: gold;
+  }
+
+  &.Common {
+    background: #A6CDC6;
+  }
+
+  &.Rare {
+    background: #A888B5;
+  }
+
+  .ant-card-head {
+    border-bottom: none;
+    font-size: 1.4em;
+  }
+
+  .ant-card-body {
+    div.ant-card-meta-description {
+      font-size: 2.3em;
+      color: #1a1a1a;
+    }
+  }
+
+  .ant-card-cover {
+    margin: 1em 0;
+    display: flex;
+    justify-content: center;
+    img {
+      width: 64%;
+      aspect-ratio: 1 / 1;
+    }
+  }
+
+  ul.ant-card-actions > li {
+    margin: 0;
+  }
+}
+
+.confirm-btn {
+  background: #74A74F;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  width: 100%;
+  font-size: 2em;
+  height: 100%;
+}
